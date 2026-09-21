@@ -3,98 +3,95 @@
 
 <head>
   <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-      <title>Moura Veículos</title>
+  <title>Moura Veículos</title>
 
-        <link rel="stylesheet" href="styles.css">
-        </head>
+  <link rel="stylesheet" href="styles.css">
+</head>
 
-        <body>
+<body>
 
-          <header class="topbar">
+  <header class="topbar">
 
-              <a class="brand" href="index.html">
-                    MOURA<span>.</span>
-                        </a>
+    <a class="brand" href="index.html">
+      MOURA<span>.</span>
+    </a>
 
-                            <a class="admin-link" href="admin.html">
-                                  Painel da equipe
-                                      </a>
+    <a class="admin-link" href="admin.html">
+      Painel da equipe
+    </a>
 
-                                        </header>
-
-
-                                          <main>
-
-                                              <section class="hero">
-
-                                                    <div>
-
-                                                            <p class="eyebrow">
-                                                                      VEÍCULOS SELECIONADOS
-                                                                              </p>
-
-                                                                                      <h1>
-                                                                                                Encontre seu próximo carro.
-                                                                                                        </h1>
-
-                                                                                                                <p>
-                                                                                                                          Consulte os veículos disponíveis e fale diretamente pelo WhatsApp.
-                                                                                                                                  </p>
-
-                                                                                                                                        </div>
-
-                                                                                                                                            </section>
+  </header>
 
 
-                                                                                                                                                <section class="content">
+  <main>
 
-                                                                                                                                                      <div class="section-heading">
+    <section class="hero">
 
-                                                                                                                                                              <h2>
-                                                                                                                                                                        Veículos disponíveis
-                                                                                                                                                                                </h2>
+      <div>
 
-                                                                                                                                                                                        <input
-                                                                                                                                                                                                  id="searchInput"
-                                                                                                                                                                                                            type="search"
-                                                                                                                                                                                                                      placeholder="Buscar por marca ou modelo"
-                                                                                                                                                                                                                              >
+        <p class="eyebrow">
+          VEÍCULOS SELECIONADOS
+        </p>
 
-                                                                                                                                                                                                                                    </div>
+        <h1>
+          Encontre seu próximo carro.
+        </h1>
 
+        <p>
+          Consulte os veículos disponíveis e fale diretamente pelo WhatsApp.
+        </p>
 
-                                                                                                                                                                                                                                          <div id="carsGrid" class="cars-grid">
+      </div>
 
-                                                                                                                                                                                                                                                  <p class="loading">
-                                                                                                                                                                                                                                                            Carregando anúncios...
-                                                                                                                                                                                                                                                                    </p>
-
-                                                                                                                                                                                                                                                                          </div>
-
-                                                                                                                                                                                                                                                                              </section>
-
-                                                                                                                                                                                                                                                                                </main>
+    </section>
 
 
-                                                                                                                                                                                                                                                                                  <footer>
-                                                                                                                                                                                                                                                                                      © 2026 Moura Veículos. Todos os direitos reservados.
-                                                                                                                                                                                                                                                                                        </footer>
+    <section class="content">
+
+      <div class="section-heading">
+
+        <h2>
+          Veículos disponíveis
+        </h2>
+
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Buscar por marca ou modelo"
+        >
+
+      </div>
 
 
-                                                                                                                                                                                                                                                                                          <!-- Supabase -->
+      <div id="carsGrid" class="cars-grid">
 
-                                                                                                                                                                                                                                                                                            <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+        <p class="loading">
+          Carregando anúncios...
+        </p>
 
-                                                                                                                                                                                                                                                                                              <!-- Configuração do Supabase -->
+      </div>
 
-                                                                                                                                                                                                                                                                                                <script src="config.js"></script>
+    </section>
 
-                                                                                                                                                                                                                                                                                                  <!-- Código do site -->
+  </main>
 
-                                                                                                                                                                                                                                                                                                    <script src="app.js"></script>
 
-                                                                                                                                                                                                                                                                                                    </body>
+  <footer>
+    © 2026 Moura Veículos. Todos os direitos reservados.
+  </footer>
 
-                                                                                                                                                                                                                                                                                                    </html>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Configuração do Supabase -->
+  <script src="config.js"></script>
+
+  <!-- Código dos veículos -->
+  <script src="app.js"></script>
+
+</body>
+
+        </html>
