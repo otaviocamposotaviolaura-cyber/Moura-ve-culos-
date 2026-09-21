@@ -29,118 +29,220 @@ const adminCars = document.getElementById("adminCars");
 
 let currentImages = [];
 
+
 /* =========================
    AUTENTICAÇÃO
 ========================= */
 
 async function checkSession() {
-  const { data } = await supabase.auth.getSession();
+
+  const { data, error } = await supabase.auth.getSession();
+
+  if (error) {
+
+    console.error("Erro ao verificar sessão:", error);
+
+    showLogin();
+
+    return;
+  }
 
   if (data.session) {
+
     showDashboard();
+
     loadAdminCars();
+
   } else {
+
     showLogin();
+
   }
+
 }
+
 
 function showLogin() {
+
   loginSection.classList.remove("hidden");
+
   dashboardSection.classList.add("hidden");
+
 }
 
+
 function showDashboard() {
+
   loginSection.classList.add("hidden");
+
   dashboardSection.classList.remove("hidden");
+
 }
+
 
 /* =========================
    LOGIN
 ========================= */
 
 loginForm.addEventListener("submit", async (event) => {
+
   event.preventDefault();
 
   loginMessage.textContent = "Entrando...";
 
-  const emailValue = document.getElementById("email").value;
-  const passwordValue = document.getElementById("password").value;
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: emailValue,
-    password: passwordValue
-  });
+  const emailValue =
+    document.getElementById("email").value.trim();
+
+  const passwordValue =
+    document.getElementById("password").value;
+
+
+  const { data, error } =
+    await supabase.auth.signInWithPassword({
+
+      email: emailValue,
+
+      password: passwordValue
+
+    });
+
+
+  console.log("Resposta do Supabase:", data);
+
+  console.log("Erro do Supabase:", error);
+
 
   if (error) {
-    console.error(error);
-    loginMessage.textContent = "E-mail ou senha incorretos.";
+
+    console.error("Erro do Supabase:", error);
+
+    loginMessage.textContent =
+      "Erro: " + error.message;
+
     return;
+
   }
+
 
   loginMessage.textContent = "";
 
   showDashboard();
+
   loadAdminCars();
+
 });
+
 
 /* =========================
    LOGOUT
 ========================= */
 
 logoutButton.addEventListener("click", async () => {
-  await supabase.auth.signOut();
+
+  const { error } =
+    await supabase.auth.signOut();
+
+  if (error) {
+
+    console.error("Erro ao sair:", error);
+
+  }
 
   resetForm();
+
   showLogin();
+
 });
+
 
 /* =========================
    CARREGAR ANÚNCIOS
 ========================= */
 
 async function loadAdminCars() {
-  adminCars.innerHTML = '<p class="loading">Carregando anúncios...</p>';
+
+  adminCars.innerHTML =
+    '<p class="loading">Carregando anúncios...</p>';
+
 
   const { data, error } = await supabase
+
     .from("cars")
+
     .select("*")
-    .order("created_at", { ascending: false });
+
+    .order("created_at", {
+      ascending: false
+    });
+
 
   if (error) {
-    console.error(error);
+
+    console.error(
+      "Erro ao carregar anúncios:",
+      error
+    );
+
     adminCars.innerHTML =
       '<p class="loading">Erro ao carregar anúncios.</p>';
+
     return;
+
   }
 
+
   if (!data || data.length === 0) {
+
     adminCars.innerHTML =
       '<p class="loading">Nenhum anúncio cadastrado.</p>';
+
     return;
+
   }
+
 
   adminCars.innerHTML = data.map(car => {
 
-    const price = Number(car.price).toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL"
-    });
+    const price =
+      Number(car.price).toLocaleString(
+        "pt-BR",
+        {
+          style: "currency",
+          currency: "BRL"
+        }
+      );
+
 
     const statusText =
       car.status === "available"
         ? "Disponível"
         : "Vendido";
 
+
     return `
+
       <div class="admin-item">
 
         <div>
-          <strong>${escapeHtml(car.brand)} ${escapeHtml(car.model)}</strong>
+
+          <strong>
+            ${escapeHtml(car.brand)}
+            ${escapeHtml(car.model)}
+          </strong>
 
           <div class="car-meta">
-            ${car.year} • ${price} • ${statusText}
+
+            ${car.year}
+            •
+            ${price}
+            •
+            ${statusText}
+
           </div>
+
         </div>
+
 
         <div class="admin-item-actions">
 
@@ -150,6 +252,7 @@ async function loadAdminCars() {
           >
             Editar
           </button>
+
 
           <button
             type="button"
@@ -162,32 +265,58 @@ async function loadAdminCars() {
         </div>
 
       </div>
+
     `;
+
   }).join("");
+
 }
+
 
 /* =========================
    SALVAR ANÚNCIO
 ========================= */
 
 carForm.addEventListener("submit", async (event) => {
+
   event.preventDefault();
 
-  formMessage.textContent = "Salvando anúncio...";
+  formMessage.textContent =
+    "Salvando anúncio...";
+
 
   const data = {
+
     brand: brand.value.trim(),
+
     model: model.value.trim(),
+
     year: Number(year.value),
+
     price: Number(price.value),
-    mileage: mileage.value ? Number(mileage.value) : null,
-    fuel: fuel.value.trim() || null,
-    transmission: transmission.value.trim() || null,
-    status: status.value,
-    description: description.value.trim() || null
+
+    mileage:
+      mileage.value
+        ? Number(mileage.value)
+        : null,
+
+    fuel:
+      fuel.value.trim() || null,
+
+    transmission:
+      transmission.value.trim() || null,
+
+    status:
+      status.value,
+
+    description:
+      description.value.trim() || null
+
   };
 
+
   try {
+
 
     /* =========================
        NOVO ANÚNCIO
@@ -195,28 +324,65 @@ carForm.addEventListener("submit", async (event) => {
 
     if (!carId.value) {
 
-      const { data: insertedCar, error } = await supabase
+
+      const {
+        data: insertedCar,
+        error
+      } = await supabase
+
         .from("cars")
+
         .insert(data)
+
         .select()
+
         .single();
 
-      if (error) throw error;
 
-      const uploadedImages = await uploadImages(insertedCar.id);
+      if (error) {
 
-      if (uploadedImages.length > 0) {
-        await supabase
-          .from("cars")
-          .update({
-            images: uploadedImages
-          })
-          .eq("id", insertedCar.id);
+        throw error;
+
       }
 
-      formMessage.textContent = "Anúncio criado com sucesso.";
+
+      const uploadedImages =
+        await uploadImages(
+          insertedCar.id
+        );
+
+
+      if (uploadedImages.length > 0) {
+
+        const { error: imageError } =
+          await supabase
+
+            .from("cars")
+
+            .update({
+              images: uploadedImages
+            })
+
+            .eq(
+              "id",
+              insertedCar.id
+            );
+
+
+        if (imageError) {
+
+          throw imageError;
+
+        }
+
+      }
+
+
+      formMessage.textContent =
+        "Anúncio criado com sucesso.";
 
     }
+
 
     /* =========================
        EDITAR ANÚNCIO
@@ -224,39 +390,76 @@ carForm.addEventListener("submit", async (event) => {
 
     else {
 
-      const uploadedImages = await uploadImages(carId.value);
+
+      const uploadedImages =
+        await uploadImages(
+          carId.value
+        );
+
 
       const finalImages = [
+
         ...currentImages,
+
         ...uploadedImages
+
       ];
 
-      const { error } = await supabase
-        .from("cars")
-        .update({
-          ...data,
-          images: finalImages,
-          updated_at: new Date().toISOString()
-        })
-        .eq("id", carId.value);
 
-      if (error) throw error;
+      const { error } =
+        await supabase
 
-      formMessage.textContent = "Anúncio atualizado com sucesso.";
+          .from("cars")
+
+          .update({
+
+            ...data,
+
+            images: finalImages,
+
+            updated_at:
+              new Date().toISOString()
+
+          })
+
+          .eq(
+            "id",
+            carId.value
+          );
+
+
+      if (error) {
+
+        throw error;
+
+      }
+
+
+      formMessage.textContent =
+        "Anúncio atualizado com sucesso.";
+
     }
 
+
     resetForm();
+
     loadAdminCars();
+
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Erro ao salvar anúncio:",
+      error
+    );
 
     formMessage.textContent =
-      "Erro ao salvar o anúncio.";
+      "Erro: " + error.message;
 
   }
+
 });
+
 
 /* =========================
    UPLOAD DAS FOTOS
@@ -264,46 +467,86 @@ carForm.addEventListener("submit", async (event) => {
 
 async function uploadImages(carIdValue) {
 
-  const files = Array.from(images.files);
+  const files =
+    Array.from(images.files);
+
 
   if (!files.length) {
+
     return [];
+
   }
+
 
   const uploadedUrls = [];
 
+
   for (const file of files) {
 
+
     const extension =
-      file.name.split(".").pop().toLowerCase();
+      file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
 
     const fileName =
       `${crypto.randomUUID()}.${extension}`;
 
+
     const filePath =
       `${carIdValue}/${fileName}`;
 
-    const { error } = await supabase.storage
-      .from("vehicle-images")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false
-      });
+
+    const { error } =
+      await supabase.storage
+
+        .from("vehicle-images")
+
+        .upload(
+          filePath,
+          file,
+          {
+            cacheControl: "3600",
+            upsert: false
+          }
+        );
+
 
     if (error) {
-      console.error("Erro no upload:", error);
+
+      console.error(
+        "Erro no upload:",
+        error
+      );
+
       continue;
+
     }
 
-    const { data } = supabase.storage
-      .from("vehicle-images")
-      .getPublicUrl(filePath);
 
-    uploadedUrls.push(data.publicUrl);
+    const { data } =
+      supabase.storage
+
+        .from("vehicle-images")
+
+        .getPublicUrl(
+          filePath
+        );
+
+
+    uploadedUrls.push(
+      data.publicUrl
+    );
+
   }
 
+
   return uploadedUrls;
+
 }
+
 
 /* =========================
    EDITAR
@@ -311,40 +554,91 @@ async function uploadImages(carIdValue) {
 
 async function editCar(id) {
 
-  const { data, error } = await supabase
-    .from("cars")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { data, error } =
+    await supabase
+
+      .from("cars")
+
+      .select("*")
+
+      .eq("id", id)
+
+      .single();
+
 
   if (error) {
-    console.error(error);
+
+    console.error(
+      "Erro ao buscar veículo:",
+      error
+    );
+
     return;
+
   }
 
-  carId.value = data.id;
 
-  brand.value = data.brand || "";
-  model.value = data.model || "";
-  year.value = data.year || "";
-  price.value = data.price || "";
-  mileage.value = data.mileage || "";
-  fuel.value = data.fuel || "";
-  transmission.value = data.transmission || "";
-  status.value = data.status || "available";
-  description.value = data.description || "";
+  carId.value =
+    data.id;
 
-  currentImages = data.images || [];
+
+  brand.value =
+    data.brand || "";
+
+
+  model.value =
+    data.model || "";
+
+
+  year.value =
+    data.year || "";
+
+
+  price.value =
+    data.price || "";
+
+
+  mileage.value =
+    data.mileage || "";
+
+
+  fuel.value =
+    data.fuel || "";
+
+
+  transmission.value =
+    data.transmission || "";
+
+
+  status.value =
+    data.status || "available";
+
+
+  description.value =
+    data.description || "";
+
+
+  currentImages =
+    data.images || [];
+
 
   renderCurrentImages();
 
-  formTitle.textContent = "Editar veículo";
+
+  formTitle.textContent =
+    "Editar veículo";
+
 
   window.scrollTo({
+
     top: 0,
+
     behavior: "smooth"
+
   });
+
 }
+
 
 /* =========================
    EXCLUIR
@@ -352,63 +646,141 @@ async function editCar(id) {
 
 async function deleteCar(id) {
 
-  const confirmed = confirm(
-    "Tem certeza que deseja excluir este anúncio?"
-  );
+  const confirmed =
+    confirm(
+      "Tem certeza que deseja excluir este anúncio?"
+    );
 
-  if (!confirmed) return;
 
-  const { data, error } = await supabase
-    .from("cars")
-    .select("images")
-    .eq("id", id)
-    .single();
+  if (!confirmed) {
+
+    return;
+
+  }
+
+
+  const { data, error } =
+    await supabase
+
+      .from("cars")
+
+      .select("images")
+
+      .eq("id", id)
+
+      .single();
+
 
   if (error) {
-    console.error(error);
+
+    console.error(
+      "Erro ao buscar fotos:",
+      error
+    );
+
     return;
+
   }
+
 
   /* Apagar fotos do Storage */
 
-  if (data.images && data.images.length) {
+  if (
+    data.images &&
+    data.images.length
+  ) {
 
-    const paths = data.images
-      .map(url => {
-        const marker = "/vehicle-images/";
 
-        const index = url.indexOf(marker);
+    const paths =
+      data.images
 
-        if (index === -1) return null;
+        .map(url => {
 
-        return decodeURIComponent(
-          url.substring(index + marker.length)
-        );
-      })
-      .filter(Boolean);
+          const marker =
+            "/vehicle-images/";
+
+
+          const index =
+            url.indexOf(marker);
+
+
+          if (index === -1) {
+
+            return null;
+
+          }
+
+
+          return decodeURIComponent(
+
+            url.substring(
+              index + marker.length
+            )
+
+          );
+
+        })
+
+        .filter(Boolean);
+
 
     if (paths.length) {
-      await supabase.storage
-        .from("vehicle-images")
-        .remove(paths);
+
+      const { error: storageError } =
+        await supabase.storage
+
+          .from("vehicle-images")
+
+          .remove(paths);
+
+
+      if (storageError) {
+
+        console.error(
+          "Erro ao apagar fotos:",
+          storageError
+        );
+
+      }
+
     }
+
   }
+
 
   /* Apagar anúncio */
 
-  const { error: deleteError } = await supabase
+  const {
+    error: deleteError
+  } = await supabase
+
     .from("cars")
+
     .delete()
+
     .eq("id", id);
 
+
   if (deleteError) {
-    console.error(deleteError);
-    alert("Não foi possível excluir o anúncio.");
+
+    console.error(
+      "Erro ao excluir anúncio:",
+      deleteError
+    );
+
+    alert(
+      "Não foi possível excluir o anúncio."
+    );
+
     return;
+
   }
 
+
   loadAdminCars();
+
 }
+
 
 /* =========================
    VISUALIZAÇÃO DAS FOTOS
@@ -418,28 +790,46 @@ function renderCurrentImages() {
 
   imagePreview.innerHTML = "";
 
+
   if (!currentImages.length) {
+
     return;
+
   }
+
 
   currentImages.forEach(url => {
 
-    const img = document.createElement("img");
+    const img =
+      document.createElement("img");
+
 
     img.src = url;
-    img.alt = "Foto do veículo";
+
+    img.alt =
+      "Foto do veículo";
+
 
     imagePreview.appendChild(img);
+
   });
+
 }
+
 
 /* =========================
    LIMPAR FORMULÁRIO
 ========================= */
 
-cancelEdit.addEventListener("click", () => {
-  resetForm();
-});
+cancelEdit.addEventListener(
+  "click",
+  () => {
+
+    resetForm();
+
+  }
+);
+
 
 function resetForm() {
 
@@ -451,10 +841,13 @@ function resetForm() {
 
   imagePreview.innerHTML = "";
 
-  formTitle.textContent = "Novo veículo";
+  formTitle.textContent =
+    "Novo veículo";
 
   formMessage.textContent = "";
+
 }
+
 
 /* =========================
    SEGURANÇA DO HTML
@@ -463,12 +856,34 @@ function resetForm() {
 function escapeHtml(value) {
 
   return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
 }
+
 
 /* =========================
    INICIAR
@@ -476,15 +891,22 @@ function escapeHtml(value) {
 
 checkSession();
 
+
 /* Atualizar automaticamente
    quando a sessão mudar */
 
-supabase.auth.onAuthStateChange((event, session) => {
+supabase.auth.onAuthStateChange(
+  (event, session) => {
 
-  if (session) {
-    showDashboard();
-  } else {
-    showLogin();
+    if (session) {
+
+      showDashboard();
+
+    } else {
+
+      showLogin();
+
+    }
+
   }
-
-});
+);
