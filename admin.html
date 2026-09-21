@@ -32,36 +32,27 @@
     input {
       width: 100%;
       box-sizing: border-box;
-      padding: 13px;
+      padding: 12px;
       margin: 8px 0 15px;
-      border-radius: 8px;
+      border-radius: 6px;
       border: none;
-      font-size: 16px;
     }
 
     button {
-      padding: 13px 20px;
+      padding: 12px 20px;
       border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      border-radius: 7px;
       cursor: pointer;
+      font-size: 16px;
     }
 
-    .resultado {
+    #resultado {
       margin-top: 20px;
       padding: 15px;
       background: #000;
       border-radius: 8px;
       white-space: pre-wrap;
       word-break: break-word;
-    }
-
-    .sucesso {
-      color: #00ff88;
-    }
-
-    .erro {
-      color: #ff5555;
     }
 
   </style>
@@ -74,11 +65,6 @@
 
     <h1>Teste de Login</h1>
 
-    <p>
-      Este teste verifica diretamente o login do Supabase.
-    </p>
-
-
     <label>
       E-mail
     </label>
@@ -88,7 +74,6 @@
       type="email"
       placeholder="Digite o e-mail"
     >
-
 
     <label>
       Senha
@@ -100,23 +85,17 @@
       placeholder="Digite a senha"
     >
 
-
     <button id="loginButton">
       Testar login
     </button>
 
-
-    <div
-      id="resultado"
-      class="resultado"
-    >
-      Aguardando teste...
+    <div id="resultado">
+      Aguardando...
     </div>
 
   </div>
 
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
@@ -153,6 +132,10 @@
       "click",
       async function () {
 
+        resultado.textContent =
+          "Entrando...";
+
+
         const emailValue =
           email.value.trim();
 
@@ -162,32 +145,26 @@
 
         if (!emailValue || !passwordValue) {
 
-          resultado.className =
-            "resultado erro";
-
           resultado.textContent =
-            "Digite o e-mail e a senha.";
+            "Preencha o e-mail e a senha.";
 
           return;
 
         }
 
 
-        resultado.className =
-          "resultado";
-
-        resultado.textContent =
-          "Testando login...";
-
-
         try {
 
           console.log(
-            "Tentando login..."
+            "Iniciando login..."
           );
 
 
-          const resposta =
+          const inicio =
+            Date.now();
+
+
+          const { data, error } =
             await supabase.auth.signInWithPassword({
 
               email: emailValue,
@@ -197,58 +174,58 @@
             });
 
 
+          const tempo =
+            Date.now() - inicio;
+
+
           console.log(
-            "Resposta completa:",
-            resposta
+            "Tempo:",
+            tempo,
+            "ms"
+          );
+
+          console.log(
+            "Data:",
+            data
+          );
+
+          console.log(
+            "Erro:",
+            error
           );
 
 
-          if (resposta.error) {
-
-            resultado.className =
-              "resultado erro";
+          if (error) {
 
             resultado.textContent =
-              "LOGIN RECUSADO\n\n" +
-              "Mensagem:\n" +
-              resposta.error.message +
-              "\n\n" +
-              "Código:\n" +
-              (resposta.error.status || "não informado");
+              "ERRO NO LOGIN\n\n" +
+              error.message +
+              "\n\nCódigo: " +
+              (error.status || "não informado") +
+              "\n\nTempo: " +
+              tempo +
+              " ms";
 
             return;
 
           }
 
 
-          if (resposta.data &&
-              resposta.data.session) {
-
-            resultado.className =
-              "resultado sucesso";
+          if (data.session) {
 
             resultado.textContent =
               "LOGIN FUNCIONOU!\n\n" +
-              "Usuário:\n" +
-              resposta.data.user.email +
+              "Usuário: " +
+              data.user.email +
               "\n\n" +
               "Sessão criada com sucesso.";
 
-            return;
+          } else {
+
+            resultado.textContent =
+              "Login respondeu, mas não criou sessão.";
 
           }
-
-
-          resultado.className =
-            "resultado erro";
-
-          resultado.textContent =
-            "O Supabase respondeu, mas não criou uma sessão.\n\n" +
-            JSON.stringify(
-              resposta,
-              null,
-              2
-            );
 
 
         } catch (erro) {
@@ -259,11 +236,8 @@
           );
 
 
-          resultado.className =
-            "resultado erro";
-
           resultado.textContent =
-            "ERRO NO LOGIN\n\n" +
+            "ERRO INESPERADO\n\n" +
             erro.message;
 
         }
