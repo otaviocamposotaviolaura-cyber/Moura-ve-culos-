@@ -23,14 +23,22 @@
 
     .box {
       max-width: 600px;
-      margin: auto;
+      margin: 40px auto;
       background: #1c1c1c;
-      padding: 20px;
+      padding: 25px;
       border-radius: 12px;
     }
 
     h1 {
       margin-top: 0;
+    }
+
+    button {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
     }
 
     .resultado {
@@ -50,14 +58,6 @@
       color: #ff5555;
     }
 
-    button {
-      padding: 12px 18px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
   </style>
 
 </head>
@@ -69,8 +69,7 @@
     <h1>Teste do Supabase</h1>
 
     <p>
-      Este teste verifica se o site consegue se comunicar
-      com o Supabase.
+      Teste direto da conexão com o Supabase.
     </p>
 
     <button id="testButton">
@@ -87,14 +86,17 @@
   </div>
 
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Configuração -->
-  <script src="./config.js"></script>
 
 
   <script>
+
+    const SUPABASE_URL =
+      "https://tqwqqjaybdlbhfljdrui.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_3g6oKAR6vsNArrB2jn3TeQ_ai9r4FSk";
+
 
     const resultado =
       document.getElementById("resultado");
@@ -103,109 +105,103 @@
       document.getElementById("testButton");
 
 
-    async function testarSupabase() {
+    testButton.addEventListener(
+      "click",
+      async function () {
 
-      resultado.className = "resultado";
+        resultado.className = "resultado";
 
-      resultado.textContent =
-        "Testando conexão com o Supabase...";
-
-
-      try {
-
-        console.log("Iniciando teste...");
-
-        console.log(
-          "SUPABASE_URL:",
-          SUPABASE_URL
-        );
-
-        console.log(
-          "SUPABASE_KEY existe:",
-          !!SUPABASE_KEY
-        );
+        resultado.textContent =
+          "Testando...";
 
 
-        const response = await fetch(
-          SUPABASE_URL + "/auth/v1/settings",
-          {
-            method: "GET",
+        try {
 
-            headers: {
-              "apikey": SUPABASE_KEY
-            }
+          console.log(
+            "URL:",
+            SUPABASE_URL
+          );
+
+          console.log(
+            "Chave:",
+            SUPABASE_KEY
+          );
+
+
+          const resposta =
+            await fetch(
+              SUPABASE_URL + "/auth/v1/settings",
+              {
+                method: "GET",
+
+                headers: {
+                  "apikey": SUPABASE_KEY
+                }
+              }
+            );
+
+
+          const texto =
+            await resposta.text();
+
+
+          console.log(
+            "Status:",
+            resposta.status
+          );
+
+          console.log(
+            "Resposta:",
+            texto
+          );
+
+
+          if (resposta.ok) {
+
+            resultado.className =
+              "resultado sucesso";
+
+            resultado.textContent =
+              "CONEXÃO FUNCIONANDO!\n\n" +
+              "Status: " +
+              resposta.status +
+              "\n\n" +
+              texto;
+
+          } else {
+
+            resultado.className =
+              "resultado erro";
+
+            resultado.textContent =
+              "SUPABASE RESPONDEU COM ERRO\n\n" +
+              "Status: " +
+              resposta.status +
+              "\n\n" +
+              texto;
+
           }
-        );
 
 
-        console.log(
-          "Status:",
-          response.status
-        );
+        } catch (erro) {
 
+          console.error(
+            "Erro:",
+            erro
+          );
 
-        const texto =
-          await response.text();
-
-
-        console.log(
-          "Resposta:",
-          texto
-        );
-
-
-        if (response.ok) {
-
-          resultado.className =
-            "resultado sucesso";
-
-          resultado.textContent =
-            "CONEXÃO FUNCIONANDO!\n\n" +
-            "Status: " +
-            response.status +
-            "\n\n" +
-            texto;
-
-        } else {
 
           resultado.className =
             "resultado erro";
 
           resultado.textContent =
-            "SUPABASE RESPONDEU COM ERRO\n\n" +
-            "Status: " +
-            response.status +
-            "\n\n" +
-            texto;
+            "ERRO DE CONEXÃO\n\n" +
+            erro.message;
 
         }
 
-
-      } catch (error) {
-
-        console.error(
-          "Erro:",
-          error
-        );
-
-
-        resultado.className =
-          "resultado erro";
-
-        resultado.textContent =
-          "ERRO DE CONEXÃO\n\n" +
-          error.message;
-
       }
-
-    }
-
-
-    testButton.addEventListener(
-      "click",
-      testarSupabase
     );
-
 
   </script>
 
