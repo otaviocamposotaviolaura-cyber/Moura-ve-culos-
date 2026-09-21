@@ -36,24 +36,41 @@ let currentImages = [];
 
 async function checkSession() {
 
-  const { data, error } = await supabase.auth.getSession();
+  try {
 
-  if (error) {
+    const { data, error } =
+      await supabase.auth.getSession();
 
-    console.error("Erro ao verificar sessão:", error);
+    if (error) {
 
-    showLogin();
+      console.error(
+        "Erro ao verificar sessão:",
+        error
+      );
 
-    return;
-  }
+      showLogin();
 
-  if (data.session) {
+      return;
+    }
 
-    showDashboard();
+    if (data.session) {
 
-    loadAdminCars();
+      showDashboard();
 
-  } else {
+      await loadAdminCars();
+
+    } else {
+
+      showLogin();
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao verificar sessão:",
+      error
+    );
 
     showLogin();
 
@@ -84,76 +101,147 @@ function showDashboard() {
    LOGIN
 ========================= */
 
-loginForm.addEventListener("submit", async (event) => {
+loginForm.addEventListener(
+  "submit",
+  async (event) => {
 
-  event.preventDefault();
-
-  loginMessage.textContent = "Entrando...";
-
-
-  const emailValue =
-    document.getElementById("email").value.trim();
-
-  const passwordValue =
-    document.getElementById("password").value;
-
-
-  const { data, error } =
-    await supabase.auth.signInWithPassword({
-
-      email: emailValue,
-
-      password: passwordValue
-
-    });
-
-
-  console.log("Resposta do Supabase:", data);
-
-  console.log("Erro do Supabase:", error);
-
-
-  if (error) {
-
-    console.error("Erro do Supabase:", error);
+    event.preventDefault();
 
     loginMessage.textContent =
-      "Erro: " + error.message;
+      "Entrando...";
 
-    return;
+    const emailValue =
+      document
+        .getElementById("email")
+        .value
+        .trim();
+
+    const passwordValue =
+      document
+        .getElementById("password")
+        .value;
+
+    if (!emailValue || !passwordValue) {
+
+      loginMessage.textContent =
+        "Digite o e-mail e a senha.";
+
+      return;
+
+    }
+
+    try {
+
+      console.log(
+        "Tentando entrar no Supabase..."
+      );
+
+      const { data, error } =
+        await supabase.auth.signInWithPassword({
+
+          email: emailValue,
+
+          password: passwordValue
+
+        });
+
+
+      console.log(
+        "Resposta do Supabase:",
+        data
+      );
+
+      console.log(
+        "Erro do Supabase:",
+        error
+      );
+
+
+      if (error) {
+
+        console.error(
+          "Erro de login:",
+          error
+        );
+
+        loginMessage.textContent =
+          "Erro: " + error.message;
+
+        return;
+
+      }
+
+
+      if (!data || !data.session) {
+
+        loginMessage.textContent =
+          "Login não concluído. Nenhuma sessão foi criada.";
+
+        return;
+
+      }
+
+
+      loginMessage.textContent = "";
+
+      showDashboard();
+
+      await loadAdminCars();
+
+    } catch (error) {
+
+      console.error(
+        "Erro inesperado no login:",
+        error
+      );
+
+      loginMessage.textContent =
+        "Erro ao conectar ao Supabase: " +
+        error.message;
+
+    }
 
   }
-
-
-  loginMessage.textContent = "";
-
-  showDashboard();
-
-  loadAdminCars();
-
-});
+);
 
 
 /* =========================
    LOGOUT
 ========================= */
 
-logoutButton.addEventListener("click", async () => {
+logoutButton.addEventListener(
+  "click",
+  async () => {
 
-  const { error } =
-    await supabase.auth.signOut();
+    try {
 
-  if (error) {
+      const { error } =
+        await supabase.auth.signOut();
 
-    console.error("Erro ao sair:", error);
+      if (error) {
+
+        console.error(
+          "Erro ao sair:",
+          error
+        );
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        "Erro inesperado ao sair:",
+        error
+      );
+
+    }
+
+    resetForm();
+
+    showLogin();
 
   }
-
-  resetForm();
-
-  showLogin();
-
-});
+);
 
 
 /* =========================
@@ -166,109 +254,131 @@ async function loadAdminCars() {
     '<p class="loading">Carregando anúncios...</p>';
 
 
-  const { data, error } = await supabase
+  try {
 
-    .from("cars")
+    const { data, error } =
+      await supabase
+        .from("cars")
+        .select("*")
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        );
 
-    .select("*")
 
-    .order("created_at", {
-      ascending: false
-    });
+    if (error) {
+
+      console.error(
+        "Erro ao carregar anúncios:",
+        error
+      );
+
+      adminCars.innerHTML =
+        '<p class="loading">Erro: ' +
+        escapeHtml(error.message) +
+        '</p>';
+
+      return;
+
+    }
 
 
-  if (error) {
+    if (!data || data.length === 0) {
+
+      adminCars.innerHTML =
+        '<p class="loading">Nenhum anúncio cadastrado.</p>';
+
+      return;
+
+    }
+
+
+    adminCars.innerHTML =
+      data.map(car => {
+
+        const price =
+          Number(car.price)
+            .toLocaleString(
+              "pt-BR",
+              {
+                style: "currency",
+                currency: "BRL"
+              }
+            );
+
+
+        const statusText =
+          car.status === "available"
+            ? "Disponível"
+            : "Vendido";
+
+
+        return `
+
+          <div class="admin-item">
+
+            <div>
+
+              <strong>
+                ${escapeHtml(car.brand)}
+                ${escapeHtml(car.model)}
+              </strong>
+
+              <div class="car-meta">
+
+                ${escapeHtml(car.year)}
+                •
+                ${price}
+                •
+                ${statusText}
+
+              </div>
+
+            </div>
+
+
+            <div class="admin-item-actions">
+
+              <button
+                type="button"
+                onclick="editCar('${car.id}')"
+              >
+                Editar
+              </button>
+
+
+              <button
+                type="button"
+                class="secondary"
+                onclick="deleteCar('${car.id}')"
+              >
+                Excluir
+              </button>
+
+            </div>
+
+          </div>
+
+        `;
+
+      }).join("");
+
+
+  } catch (error) {
 
     console.error(
-      "Erro ao carregar anúncios:",
+      "Erro inesperado:",
       error
     );
 
     adminCars.innerHTML =
-      '<p class="loading">Erro ao carregar anúncios.</p>';
-
-    return;
-
-  }
-
-
-  if (!data || data.length === 0) {
-
-    adminCars.innerHTML =
-      '<p class="loading">Nenhum anúncio cadastrado.</p>';
-
-    return;
+      '<p class="loading">Erro: ' +
+      escapeHtml(error.message) +
+      '</p>';
 
   }
-
-
-  adminCars.innerHTML = data.map(car => {
-
-    const price =
-      Number(car.price).toLocaleString(
-        "pt-BR",
-        {
-          style: "currency",
-          currency: "BRL"
-        }
-      );
-
-
-    const statusText =
-      car.status === "available"
-        ? "Disponível"
-        : "Vendido";
-
-
-    return `
-
-      <div class="admin-item">
-
-        <div>
-
-          <strong>
-            ${escapeHtml(car.brand)}
-            ${escapeHtml(car.model)}
-          </strong>
-
-          <div class="car-meta">
-
-            ${car.year}
-            •
-            ${price}
-            •
-            ${statusText}
-
-          </div>
-
-        </div>
-
-
-        <div class="admin-item-actions">
-
-          <button
-            type="button"
-            onclick="editCar('${car.id}')"
-          >
-            Editar
-          </button>
-
-
-          <button
-            type="button"
-            class="secondary"
-            onclick="deleteCar('${car.id}')"
-          >
-            Excluir
-          </button>
-
-        </div>
-
-      </div>
-
-    `;
-
-  }).join("");
 
 }
 
@@ -277,188 +387,177 @@ async function loadAdminCars() {
    SALVAR ANÚNCIO
 ========================= */
 
-carForm.addEventListener("submit", async (event) => {
+carForm.addEventListener(
+  "submit",
+  async (event) => {
 
-  event.preventDefault();
+    event.preventDefault();
 
-  formMessage.textContent =
-    "Salvando anúncio...";
-
-
-  const data = {
-
-    brand: brand.value.trim(),
-
-    model: model.value.trim(),
-
-    year: Number(year.value),
-
-    price: Number(price.value),
-
-    mileage:
-      mileage.value
-        ? Number(mileage.value)
-        : null,
-
-    fuel:
-      fuel.value.trim() || null,
-
-    transmission:
-      transmission.value.trim() || null,
-
-    status:
-      status.value,
-
-    description:
-      description.value.trim() || null
-
-  };
+    formMessage.textContent =
+      "Salvando anúncio...";
 
 
-  try {
+    const data = {
+
+      brand:
+        brand.value.trim(),
+
+      model:
+        model.value.trim(),
+
+      year:
+        Number(year.value),
+
+      price:
+        Number(price.value),
+
+      mileage:
+        mileage.value
+          ? Number(mileage.value)
+          : null,
+
+      fuel:
+        fuel.value.trim() || null,
+
+      transmission:
+        transmission.value.trim() || null,
+
+      status:
+        status.value,
+
+      description:
+        description.value.trim() || null
+
+    };
 
 
-    /* =========================
-       NOVO ANÚNCIO
-    ========================= */
-
-    if (!carId.value) {
+    try {
 
 
-      const {
-        data: insertedCar,
-        error
-      } = await supabase
+      /* NOVO ANÚNCIO */
 
-        .from("cars")
+      if (!carId.value) {
 
-        .insert(data)
-
-        .select()
-
-        .single();
-
-
-      if (error) {
-
-        throw error;
-
-      }
+        const {
+          data: insertedCar,
+          error
+        } = await supabase
+          .from("cars")
+          .insert(data)
+          .select()
+          .single();
 
 
-      const uploadedImages =
-        await uploadImages(
-          insertedCar.id
-        );
+        if (error) {
+
+          throw error;
+
+        }
 
 
-      if (uploadedImages.length > 0) {
+        const uploadedImages =
+          await uploadImages(
+            insertedCar.id
+          );
 
-        const { error: imageError } =
-          await supabase
 
+        if (uploadedImages.length > 0) {
+
+          const {
+            error: imageError
+          } = await supabase
             .from("cars")
-
             .update({
               images: uploadedImages
             })
-
             .eq(
               "id",
               insertedCar.id
             );
 
 
-        if (imageError) {
+          if (imageError) {
 
-          throw imageError;
+            throw imageError;
+
+          }
 
         }
+
+
+        formMessage.textContent =
+          "Anúncio criado com sucesso.";
 
       }
 
 
-      formMessage.textContent =
-        "Anúncio criado com sucesso.";
+      /* EDITAR ANÚNCIO */
 
-    }
+      else {
 
-
-    /* =========================
-       EDITAR ANÚNCIO
-    ========================= */
-
-    else {
-
-
-      const uploadedImages =
-        await uploadImages(
-          carId.value
-        );
-
-
-      const finalImages = [
-
-        ...currentImages,
-
-        ...uploadedImages
-
-      ];
-
-
-      const { error } =
-        await supabase
-
-          .from("cars")
-
-          .update({
-
-            ...data,
-
-            images: finalImages,
-
-            updated_at:
-              new Date().toISOString()
-
-          })
-
-          .eq(
-            "id",
+        const uploadedImages =
+          await uploadImages(
             carId.value
           );
 
 
-      if (error) {
+        const finalImages = [
+          ...currentImages,
+          ...uploadedImages
+        ];
 
-        throw error;
+
+        const { error } =
+          await supabase
+            .from("cars")
+            .update({
+
+              ...data,
+
+              images: finalImages,
+
+              updated_at:
+                new Date().toISOString()
+
+            })
+            .eq(
+              "id",
+              carId.value
+            );
+
+
+        if (error) {
+
+          throw error;
+
+        }
+
+
+        formMessage.textContent =
+          "Anúncio atualizado com sucesso.";
 
       }
 
 
+      resetForm();
+
+      await loadAdminCars();
+
+
+    } catch (error) {
+
+      console.error(
+        "Erro ao salvar anúncio:",
+        error
+      );
+
       formMessage.textContent =
-        "Anúncio atualizado com sucesso.";
+        "Erro: " + error.message;
 
     }
 
-
-    resetForm();
-
-    loadAdminCars();
-
-
-  } catch (error) {
-
-    console.error(
-      "Erro ao salvar anúncio:",
-      error
-    );
-
-    formMessage.textContent =
-      "Erro: " + error.message;
-
   }
-
-});
+);
 
 
 /* =========================
@@ -483,7 +582,6 @@ async function uploadImages(carIdValue) {
 
   for (const file of files) {
 
-
     const extension =
       file.name
         .split(".")
@@ -501,9 +599,7 @@ async function uploadImages(carIdValue) {
 
     const { error } =
       await supabase.storage
-
         .from("vehicle-images")
-
         .upload(
           filePath,
           file,
@@ -528,9 +624,7 @@ async function uploadImages(carIdValue) {
 
     const { data } =
       supabase.storage
-
         .from("vehicle-images")
-
         .getPublicUrl(
           filePath
         );
@@ -556,13 +650,9 @@ async function editCar(id) {
 
   const { data, error } =
     await supabase
-
       .from("cars")
-
       .select("*")
-
       .eq("id", id)
-
       .single();
 
 
@@ -581,42 +671,32 @@ async function editCar(id) {
   carId.value =
     data.id;
 
-
   brand.value =
     data.brand || "";
-
 
   model.value =
     data.model || "";
 
-
   year.value =
     data.year || "";
-
 
   price.value =
     data.price || "";
 
-
   mileage.value =
     data.mileage || "";
-
 
   fuel.value =
     data.fuel || "";
 
-
   transmission.value =
     data.transmission || "";
-
 
   status.value =
     data.status || "available";
 
-
   description.value =
     data.description || "";
-
 
   currentImages =
     data.images || [];
@@ -661,13 +741,9 @@ async function deleteCar(id) {
 
   const { data, error } =
     await supabase
-
       .from("cars")
-
       .select("images")
-
       .eq("id", id)
-
       .single();
 
 
@@ -683,22 +759,17 @@ async function deleteCar(id) {
   }
 
 
-  /* Apagar fotos do Storage */
-
   if (
     data.images &&
     data.images.length
   ) {
 
-
     const paths =
       data.images
-
         .map(url => {
 
           const marker =
             "/vehicle-images/";
-
 
           const index =
             url.indexOf(marker);
@@ -712,26 +783,22 @@ async function deleteCar(id) {
 
 
           return decodeURIComponent(
-
             url.substring(
               index + marker.length
             )
-
           );
 
         })
-
         .filter(Boolean);
 
 
     if (paths.length) {
 
-      const { error: storageError } =
-        await supabase.storage
-
-          .from("vehicle-images")
-
-          .remove(paths);
+      const {
+        error: storageError
+      } = await supabase.storage
+        .from("vehicle-images")
+        .remove(paths);
 
 
       if (storageError) {
@@ -748,16 +815,11 @@ async function deleteCar(id) {
   }
 
 
-  /* Apagar anúncio */
-
   const {
     error: deleteError
   } = await supabase
-
     .from("cars")
-
     .delete()
-
     .eq("id", id);
 
 
@@ -777,7 +839,7 @@ async function deleteCar(id) {
   }
 
 
-  loadAdminCars();
+  await loadAdminCars();
 
 }
 
@@ -803,12 +865,10 @@ function renderCurrentImages() {
     const img =
       document.createElement("img");
 
-
     img.src = url;
 
     img.alt =
       "Foto do veículo";
-
 
     imagePreview.appendChild(img);
 
@@ -886,17 +946,16 @@ function escapeHtml(value) {
 
 
 /* =========================
-   INICIAR
+   SESSÃO
 ========================= */
-
-checkSession();
-
-
-/* Atualizar automaticamente
-   quando a sessão mudar */
 
 supabase.auth.onAuthStateChange(
   (event, session) => {
+
+    console.log(
+      "Evento de autenticação:",
+      event
+    );
 
     if (session) {
 
@@ -910,3 +969,10 @@ supabase.auth.onAuthStateChange(
 
   }
 );
+
+
+/* =========================
+   INICIAR
+========================= */
+
+checkSession();
