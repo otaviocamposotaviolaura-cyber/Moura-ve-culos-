@@ -1,45 +1,62 @@
-const loginSection = document.getElementById("loginSection");
-const dashboardSection = document.getElementById("dashboardSection");
+const loginSection =
+  document.getElementById("loginSection");
 
-const loginForm = document.getElementById("loginForm");
-const loginMessage = document.getElementById("loginMessage");
+const dashboardSection =
+  document.getElementById("dashboardSection");
 
-const logoutButton = document.getElementById("logoutButton");
+const loginForm =
+  document.getElementById("loginForm");
 
-const carForm = document.getElementById("carForm");
-const formTitle = document.getElementById("formTitle");
-const formMessage = document.getElementById("formMessage");
+const loginMessage =
+  document.getElementById("loginMessage");
 
-const carId = document.getElementById("carId");
-const brand = document.getElementById("brand");
-const model = document.getElementById("model");
-const year = document.getElementById("year");
-const price = document.getElementById("price");
-const mileage = document.getElementById("mileage");
-const fuel = document.getElementById("fuel");
-const transmission = document.getElementById("transmission");
-const status = document.getElementById("status");
-const description = document.getElementById("description");
-const images = document.getElementById("images");
+const logoutButton =
+  document.getElementById("logoutButton");
 
-const imagePreview = document.getElementById("imagePreview");
-const cancelEdit = document.getElementById("cancelEdit");
+const carForm =
+  document.getElementById("carForm");
 
-const adminCars = document.getElementById("adminCars");
+const adminCars =
+  document.getElementById("adminCars");
+
+const formMessage =
+  document.getElementById("formMessage");
+
+const cancelEdit =
+  document.getElementById("cancelEdit");
+
+const imageInput =
+  document.getElementById("images");
+
+const imagePreview =
+  document.getElementById("imagePreview");
+
+const carId =
+  document.getElementById("carId");
+
+const formTitle =
+  document.getElementById("formTitle");
+
 
 let currentImages = [];
 
 
+
 /* =========================
-   AUTENTICAÇÃO
+   LOGIN / SESSÃO
 ========================= */
+
 
 async function checkSession() {
 
   try {
 
-    const { data, error } =
-      await supabase.auth.getSession();
+    const {
+      data,
+      error
+    } =
+      await window.db.auth.getSession();
+
 
     if (error) {
 
@@ -53,7 +70,11 @@ async function checkSession() {
       return;
     }
 
-    if (data.session) {
+
+    if (
+      data &&
+      data.session
+    ) {
 
       showDashboard();
 
@@ -65,10 +86,11 @@ async function checkSession() {
 
     }
 
+
   } catch (error) {
 
     console.error(
-      "Erro ao verificar sessão:",
+      "Erro na sessão:",
       error
     );
 
@@ -79,49 +101,68 @@ async function checkSession() {
 }
 
 
+
 function showLogin() {
 
-  loginSection.classList.remove("hidden");
+  loginSection.classList.remove(
+    "hidden"
+  );
 
-  dashboardSection.classList.add("hidden");
+  dashboardSection.classList.add(
+    "hidden"
+  );
 
 }
+
 
 
 function showDashboard() {
 
-  loginSection.classList.add("hidden");
+  loginSection.classList.add(
+    "hidden"
+  );
 
-  dashboardSection.classList.remove("hidden");
+  dashboardSection.classList.remove(
+    "hidden"
+  );
 
 }
+
 
 
 /* =========================
    LOGIN
 ========================= */
 
+
 loginForm.addEventListener(
   "submit",
-  async (event) => {
+  async event => {
 
     event.preventDefault();
+
 
     loginMessage.textContent =
       "Entrando...";
 
-    const emailValue =
+
+    const email =
       document
         .getElementById("email")
         .value
         .trim();
 
-    const passwordValue =
+
+    const password =
       document
         .getElementById("password")
         .value;
 
-    if (!emailValue || !passwordValue) {
+
+    if (
+      !email ||
+      !password
+    ) {
 
       loginMessage.textContent =
         "Digite o e-mail e a senha.";
@@ -130,73 +171,113 @@ loginForm.addEventListener(
 
     }
 
+
     try {
 
       console.log(
-        "Tentando entrar no Supabase..."
+        "Tentando entrar..."
       );
 
-      const { data, error } =
-        await supabase.auth.signInWithPassword({
 
-          email: emailValue,
+      const loginPromise =
+        window.db.auth.signInWithPassword({
 
-          password: passwordValue
+          email: email,
+
+          password: password
 
         });
 
 
+      const timeoutPromise =
+        new Promise(
+          (_, reject) => {
+
+            setTimeout(
+              () => {
+
+                reject(
+                  new Error(
+                    "Tempo limite ao conectar ao Supabase."
+                  )
+                );
+
+              },
+              15000
+            );
+
+          }
+        );
+
+
+      const {
+        data,
+        error
+      } =
+        await Promise.race([
+
+          loginPromise,
+
+          timeoutPromise
+
+        ]);
+
+
       console.log(
-        "Resposta do Supabase:",
+        "Resposta do login:",
         data
       );
 
+
       console.log(
-        "Erro do Supabase:",
+        "Erro:",
         error
       );
 
 
       if (error) {
 
-        console.error(
-          "Erro de login:",
-          error
-        );
-
         loginMessage.textContent =
-          "Erro: " + error.message;
+          "Erro: " +
+          error.message;
 
         return;
 
       }
 
 
-      if (!data || !data.session) {
+      if (
+        !data ||
+        !data.session
+      ) {
 
         loginMessage.textContent =
-          "Login não concluído. Nenhuma sessão foi criada.";
+          "Login não concluído.";
 
         return;
 
       }
 
 
-      loginMessage.textContent = "";
+      loginMessage.textContent =
+        "";
+
 
       showDashboard();
 
+
       await loadAdminCars();
+
 
     } catch (error) {
 
       console.error(
-        "Erro inesperado no login:",
+        "Erro no login:",
         error
       );
 
+
       loginMessage.textContent =
-        "Erro ao conectar ao Supabase: " +
         error.message;
 
     }
@@ -205,38 +286,17 @@ loginForm.addEventListener(
 );
 
 
+
 /* =========================
    LOGOUT
 ========================= */
+
 
 logoutButton.addEventListener(
   "click",
   async () => {
 
-    try {
-
-      const { error } =
-        await supabase.auth.signOut();
-
-      if (error) {
-
-        console.error(
-          "Erro ao sair:",
-          error
-        );
-
-      }
-
-    } catch (error) {
-
-      console.error(
-        "Erro inesperado ao sair:",
-        error
-      );
-
-    }
-
-    resetForm();
+    await window.db.auth.signOut();
 
     showLogin();
 
@@ -244,20 +304,25 @@ logoutButton.addEventListener(
 );
 
 
+
 /* =========================
    CARREGAR ANÚNCIOS
 ========================= */
 
+
 async function loadAdminCars() {
 
   adminCars.innerHTML =
-    '<p class="loading">Carregando anúncios...</p>';
+    "<p>Carregando anúncios...</p>";
 
 
   try {
 
-    const { data, error } =
-      await supabase
+    const {
+      data,
+      error
+    } =
+      await window.db
         .from("cars")
         .select("*")
         .order(
@@ -271,24 +336,25 @@ async function loadAdminCars() {
     if (error) {
 
       console.error(
-        "Erro ao carregar anúncios:",
+        "Erro:",
         error
       );
 
       adminCars.innerHTML =
-        '<p class="loading">Erro: ' +
-        escapeHtml(error.message) +
-        '</p>';
+        "<p>Erro ao carregar anúncios.</p>";
 
       return;
 
     }
 
 
-    if (!data || data.length === 0) {
+    if (
+      !data ||
+      !data.length
+    ) {
 
       adminCars.innerHTML =
-        '<p class="loading">Nenhum anúncio cadastrado.</p>';
+        "<p>Nenhum anúncio cadastrado.</p>";
 
       return;
 
@@ -309,57 +375,73 @@ async function loadAdminCars() {
             );
 
 
-        const statusText =
-          car.status === "available"
-            ? "Disponível"
-            : "Vendido";
+        const image =
+          car.images &&
+          car.images.length
+            ? car.images[0]
+            : "";
 
 
         return `
 
-          <div class="admin-item">
+          <article class="admin-card">
+
+            ${
+              image
+                ? `
+                  <img
+                    src="${escapeHtml(image)}"
+                    alt="${escapeHtml(car.brand)} ${escapeHtml(car.model)}"
+                  >
+                `
+                : ""
+            }
+
 
             <div>
 
-              <strong>
+              <h3>
                 ${escapeHtml(car.brand)}
                 ${escapeHtml(car.model)}
-              </strong>
+              </h3>
 
-              <div class="car-meta">
 
-                ${escapeHtml(car.year)}
+              <p>
+                ${escapeHtml(String(car.year))}
                 •
                 ${price}
-                •
-                ${statusText}
+              </p>
+
+
+              <p>
+                Status:
+                ${car.status === "available"
+                  ? "Disponível"
+                  : "Vendido"}
+              </p>
+
+
+              <div class="form-actions">
+
+                <button
+                  onclick="editCar('${car.id}')"
+                >
+                  Editar
+                </button>
+
+
+                <button
+                  class="secondary"
+                  onclick="deleteCar('${car.id}')"
+                >
+                  Excluir
+                </button>
 
               </div>
 
             </div>
 
-
-            <div class="admin-item-actions">
-
-              <button
-                type="button"
-                onclick="editCar('${car.id}')"
-              >
-                Editar
-              </button>
-
-
-              <button
-                type="button"
-                class="secondary"
-                onclick="deleteCar('${car.id}')"
-              >
-                Excluir
-              </button>
-
-            </div>
-
-          </div>
+          </article>
 
         `;
 
@@ -374,172 +456,185 @@ async function loadAdminCars() {
     );
 
     adminCars.innerHTML =
-      '<p class="loading">Erro: ' +
-      escapeHtml(error.message) +
-      '</p>';
+      "<p>Erro inesperado ao carregar anúncios.</p>";
 
   }
 
 }
 
 
+
 /* =========================
-   SALVAR ANÚNCIO
+   SALVAR
 ========================= */
+
 
 carForm.addEventListener(
   "submit",
-  async (event) => {
+  async event => {
 
     event.preventDefault();
+
 
     formMessage.textContent =
       "Salvando anúncio...";
 
 
-    const data = {
-
-      brand:
-        brand.value.trim(),
-
-      model:
-        model.value.trim(),
-
-      year:
-        Number(year.value),
-
-      price:
-        Number(price.value),
-
-      mileage:
-        mileage.value
-          ? Number(mileage.value)
-          : null,
-
-      fuel:
-        fuel.value.trim() || null,
-
-      transmission:
-        transmission.value.trim() || null,
-
-      status:
-        status.value,
-
-      description:
-        description.value.trim() || null
-
-    };
-
-
     try {
 
-
-      /* NOVO ANÚNCIO */
-
-      if (!carId.value) {
-
-        const {
-          data: insertedCar,
-          error
-        } = await supabase
-          .from("cars")
-          .insert(data)
-          .select()
-          .single();
+      const id =
+        carId.value.trim();
 
 
-        if (error) {
-
-          throw error;
-
-        }
-
-
-        const uploadedImages =
-          await uploadImages(
-            insertedCar.id
-          );
+      const brand =
+        document
+          .getElementById("brand")
+          .value
+          .trim();
 
 
-        if (uploadedImages.length > 0) {
+      const model =
+        document
+          .getElementById("model")
+          .value
+          .trim();
 
-          const {
-            error: imageError
-          } = await supabase
+
+      const year =
+        Number(
+          document
+            .getElementById("year")
+            .value
+        );
+
+
+      const price =
+        Number(
+          document
+            .getElementById("price")
+            .value
+        );
+
+
+      const mileageValue =
+        document
+          .getElementById("mileage")
+          .value;
+
+
+      const mileage =
+        mileageValue
+          ? Number(mileageValue)
+          : null;
+
+
+      const fuel =
+        document
+          .getElementById("fuel")
+          .value
+          .trim();
+
+
+      const transmission =
+        document
+          .getElementById("transmission")
+          .value
+          .trim();
+
+
+      const status =
+        document
+          .getElementById("status")
+          .value;
+
+
+      const description =
+        document
+          .getElementById("description")
+          .value
+          .trim();
+
+
+      const files =
+        Array.from(
+          imageInput.files
+        );
+
+
+      if (files.length) {
+
+        const uploaded =
+          await uploadImages(files);
+
+
+        currentImages =
+          [
+            ...currentImages,
+            ...uploaded
+          ];
+
+      }
+
+
+      const vehicle = {
+
+        brand,
+
+        model,
+
+        year,
+
+        price,
+
+        mileage,
+
+        fuel,
+
+        transmission,
+
+        status,
+
+        description,
+
+        images: currentImages
+
+      };
+
+
+      let result;
+
+
+      if (id) {
+
+        result =
+          await window.db
             .from("cars")
-            .update({
-              images: uploadedImages
-            })
-            .eq(
-              "id",
-              insertedCar.id
-            );
+            .update(vehicle)
+            .eq("id", id);
 
+      } else {
 
-          if (imageError) {
-
-            throw imageError;
-
-          }
-
-        }
-
-
-        formMessage.textContent =
-          "Anúncio criado com sucesso.";
+        result =
+          await window.db
+            .from("cars")
+            .insert(vehicle);
 
       }
 
 
-      /* EDITAR ANÚNCIO */
+      if (result.error) {
 
-      else {
-
-        const uploadedImages =
-          await uploadImages(
-            carId.value
-          );
-
-
-        const finalImages = [
-          ...currentImages,
-          ...uploadedImages
-        ];
-
-
-        const { error } =
-          await supabase
-            .from("cars")
-            .update({
-
-              ...data,
-
-              images: finalImages,
-
-              updated_at:
-                new Date().toISOString()
-
-            })
-            .eq(
-              "id",
-              carId.value
-            );
-
-
-        if (error) {
-
-          throw error;
-
-        }
-
-
-        formMessage.textContent =
-          "Anúncio atualizado com sucesso.";
+        throw result.error;
 
       }
+
+
+      formMessage.textContent =
+        "Anúncio salvo com sucesso!";
 
 
       resetForm();
+
 
       await loadAdminCars();
 
@@ -547,12 +642,14 @@ carForm.addEventListener(
     } catch (error) {
 
       console.error(
-        "Erro ao salvar anúncio:",
+        "Erro ao salvar:",
         error
       );
 
+
       formMessage.textContent =
-        "Erro: " + error.message;
+        "Erro: " +
+        error.message;
 
     }
 
@@ -560,27 +657,20 @@ carForm.addEventListener(
 );
 
 
+
 /* =========================
-   UPLOAD DAS FOTOS
+   UPLOAD DE IMAGENS
 ========================= */
 
-async function uploadImages(carIdValue) {
 
-  const files =
-    Array.from(images.files);
+async function uploadImages(files) {
 
-
-  if (!files.length) {
-
-    return [];
-
-  }
+  const urls = [];
 
 
-  const uploadedUrls = [];
-
-
-  for (const file of files) {
+  for (
+    const file of files
+  ) {
 
     const extension =
       file.name
@@ -590,15 +680,19 @@ async function uploadImages(carIdValue) {
 
 
     const fileName =
-      `${crypto.randomUUID()}.${extension}`;
+      `${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2)}.${extension}`;
 
 
     const filePath =
-      `${carIdValue}/${fileName}`;
+      fileName;
 
 
-    const { error } =
-      await supabase.storage
+    const {
+      error
+    } =
+      await window.db.storage
         .from("vehicle-images")
         .upload(
           filePath,
@@ -612,117 +706,158 @@ async function uploadImages(carIdValue) {
 
     if (error) {
 
-      console.error(
-        "Erro no upload:",
-        error
-      );
-
-      continue;
+      throw error;
 
     }
 
 
-    const { data } =
-      supabase.storage
+    const {
+      data
+    } =
+      window.db.storage
         .from("vehicle-images")
         .getPublicUrl(
           filePath
         );
 
 
-    uploadedUrls.push(
+    urls.push(
       data.publicUrl
     );
 
   }
 
 
-  return uploadedUrls;
+  return urls;
 
 }
+
 
 
 /* =========================
    EDITAR
 ========================= */
 
+
 async function editCar(id) {
 
-  const { data, error } =
-    await supabase
-      .from("cars")
-      .select("*")
-      .eq("id", id)
-      .single();
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await window.db
+        .from("cars")
+        .select("*")
+        .eq("id", id)
+        .single();
 
 
-  if (error) {
+    if (error) {
+
+      throw error;
+
+    }
+
+
+    carId.value =
+      data.id;
+
+
+    document
+      .getElementById("brand")
+      .value =
+      data.brand || "";
+
+
+    document
+      .getElementById("model")
+      .value =
+      data.model || "";
+
+
+    document
+      .getElementById("year")
+      .value =
+      data.year || "";
+
+
+    document
+      .getElementById("price")
+      .value =
+      data.price || "";
+
+
+    document
+      .getElementById("mileage")
+      .value =
+      data.mileage || "";
+
+
+    document
+      .getElementById("fuel")
+      .value =
+      data.fuel || "";
+
+
+    document
+      .getElementById("transmission")
+      .value =
+      data.transmission || "";
+
+
+    document
+      .getElementById("status")
+      .value =
+      data.status || "available";
+
+
+    document
+      .getElementById("description")
+      .value =
+      data.description || "";
+
+
+    currentImages =
+      data.images || [];
+
+
+    formTitle.textContent =
+      "Editar veículo";
+
+
+    renderCurrentImages();
+
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+
+  } catch (error) {
 
     console.error(
-      "Erro ao buscar veículo:",
+      "Erro ao editar:",
       error
     );
 
-    return;
+    alert(
+      "Erro ao carregar veículo: " +
+      error.message
+    );
 
   }
 
-
-  carId.value =
-    data.id;
-
-  brand.value =
-    data.brand || "";
-
-  model.value =
-    data.model || "";
-
-  year.value =
-    data.year || "";
-
-  price.value =
-    data.price || "";
-
-  mileage.value =
-    data.mileage || "";
-
-  fuel.value =
-    data.fuel || "";
-
-  transmission.value =
-    data.transmission || "";
-
-  status.value =
-    data.status || "available";
-
-  description.value =
-    data.description || "";
-
-  currentImages =
-    data.images || [];
-
-
-  renderCurrentImages();
-
-
-  formTitle.textContent =
-    "Editar veículo";
-
-
-  window.scrollTo({
-
-    top: 0,
-
-    behavior: "smooth"
-
-  });
-
 }
+
 
 
 /* =========================
    EXCLUIR
 ========================= */
+
 
 async function deleteCar(id) {
 
@@ -739,155 +874,142 @@ async function deleteCar(id) {
   }
 
 
-  const { data, error } =
-    await supabase
-      .from("cars")
-      .select("images")
-      .eq("id", id)
-      .single();
+  try {
 
-
-  if (error) {
-
-    console.error(
-      "Erro ao buscar fotos:",
+    const {
       error
-    );
-
-    return;
-
-  }
-
-
-  if (
-    data.images &&
-    data.images.length
-  ) {
-
-    const paths =
-      data.images
-        .map(url => {
-
-          const marker =
-            "/vehicle-images/";
-
-          const index =
-            url.indexOf(marker);
+    } =
+      await window.db
+        .from("cars")
+        .delete()
+        .eq("id", id);
 
 
-          if (index === -1) {
+    if (error) {
 
-            return null;
-
-          }
-
-
-          return decodeURIComponent(
-            url.substring(
-              index + marker.length
-            )
-          );
-
-        })
-        .filter(Boolean);
-
-
-    if (paths.length) {
-
-      const {
-        error: storageError
-      } = await supabase.storage
-        .from("vehicle-images")
-        .remove(paths);
-
-
-      if (storageError) {
-
-        console.error(
-          "Erro ao apagar fotos:",
-          storageError
-        );
-
-      }
+      throw error;
 
     }
 
-  }
+
+    await loadAdminCars();
 
 
-  const {
-    error: deleteError
-  } = await supabase
-    .from("cars")
-    .delete()
-    .eq("id", id);
-
-
-  if (deleteError) {
+  } catch (error) {
 
     console.error(
-      "Erro ao excluir anúncio:",
-      deleteError
+      "Erro ao excluir:",
+      error
     );
+
 
     alert(
-      "Não foi possível excluir o anúncio."
+      "Erro ao excluir: " +
+      error.message
     );
 
-    return;
-
   }
-
-
-  await loadAdminCars();
 
 }
 
 
+
 /* =========================
-   VISUALIZAÇÃO DAS FOTOS
+   PREVIEW DAS IMAGENS
 ========================= */
+
+
+imageInput.addEventListener(
+  "change",
+  () => {
+
+    renderCurrentImages();
+
+
+    const files =
+      Array.from(
+        imageInput.files
+      );
+
+
+    files.forEach(file => {
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        event => {
+
+          const img =
+            document.createElement(
+              "img"
+            );
+
+
+          img.src =
+            event.target.result;
+
+
+          img.alt =
+            file.name;
+
+
+          imagePreview.appendChild(
+            img
+          );
+
+        };
+
+
+      reader.readAsDataURL(file);
+
+    });
+
+  }
+);
+
+
 
 function renderCurrentImages() {
 
   imagePreview.innerHTML = "";
 
 
-  if (!currentImages.length) {
+  currentImages.forEach(
+    url => {
 
-    return;
+      const img =
+        document.createElement(
+          "img"
+        );
 
-  }
+
+      img.src = url;
+
+      img.alt =
+        "Imagem do veículo";
 
 
-  currentImages.forEach(url => {
+      imagePreview.appendChild(
+        img
+      );
 
-    const img =
-      document.createElement("img");
-
-    img.src = url;
-
-    img.alt =
-      "Foto do veículo";
-
-    imagePreview.appendChild(img);
-
-  });
+    }
+  );
 
 }
+
 
 
 /* =========================
    LIMPAR FORMULÁRIO
 ========================= */
 
+
 cancelEdit.addEventListener(
   "click",
-  () => {
-
-    resetForm();
-
-  }
+  resetForm
 );
 
 
@@ -895,23 +1017,30 @@ function resetForm() {
 
   carForm.reset();
 
+
   carId.value = "";
+
 
   currentImages = [];
 
+
   imagePreview.innerHTML = "";
+
 
   formTitle.textContent =
     "Novo veículo";
+
 
   formMessage.textContent = "";
 
 }
 
 
+
 /* =========================
-   SEGURANÇA DO HTML
+   SEGURANÇA HTML
 ========================= */
+
 
 function escapeHtml(value) {
 
@@ -945,17 +1074,20 @@ function escapeHtml(value) {
 }
 
 
+
 /* =========================
-   SESSÃO
+   OBSERVAR AUTENTICAÇÃO
 ========================= */
 
-supabase.auth.onAuthStateChange(
+
+window.db.auth.onAuthStateChange(
   (event, session) => {
 
     console.log(
-      "Evento de autenticação:",
+      "Auth:",
       event
     );
+
 
     if (session) {
 
@@ -971,8 +1103,10 @@ supabase.auth.onAuthStateChange(
 );
 
 
+
 /* =========================
    INICIAR
 ========================= */
+
 
 checkSession();
