@@ -1,39 +1,100 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moura Veículos</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="topbar">
-    <a class="brand" href="index.html">MOURA<span>.</span></a>
-    <a class="admin-link" href="admin.html">Painel da equipe</a>
-  </header>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <main>
-    <section class="hero">
-      <div>
-        <p class="eyebrow">VEÍCULOS SELECIONADOS</p>
-        <h1>Encontre seu próximo carro.</h1>
-        <p>Consulte os veículos disponíveis e fale diretamente pelo WhatsApp.</p>
-      </div>
-    </section>
+      <title>Moura Veículos</title>
 
-    <section class="content">
-      <div class="section-heading">
-        <h2>Veículos disponíveis</h2>
-        <input id="searchInput" type="search" placeholder="Buscar por marca ou modelo">
-      </div>
-      <div id="carsGrid" class="cars-grid">
-        <p class="loading">Carregando anúncios...</p>
-      </div>
-    </section>
-  </main>
+        <link rel="stylesheet" href="styles.css">
+        </head>
 
-  <footer>© 2026 Moura Veículos. Todos os direitos reservados.</footer>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+        <body>
+
+          <header class="topbar">
+
+              <a class="brand" href="index.html">
+                    MOURA<span>.</span>
+                        </a>
+
+                            <a class="admin-link" href="admin.html">
+                                  Painel da equipe
+                                      </a>
+
+                                        </header>
+
+
+                                          <main>
+
+                                              <section class="hero">
+
+                                                    <div>
+
+                                                            <p class="eyebrow">
+                                                                      VEÍCULOS SELECIONADOS
+                                                                              </p>
+
+                                                                                      <h1>
+                                                                                                Encontre seu próximo carro.
+                                                                                                        </h1>
+
+                                                                                                                <p>
+                                                                                                                          Consulte os veículos disponíveis e fale diretamente pelo WhatsApp.
+                                                                                                                                  </p>
+
+                                                                                                                                        </div>
+
+                                                                                                                                            </section>
+
+
+                                                                                                                                                <section class="content">
+
+                                                                                                                                                      <div class="section-heading">
+
+                                                                                                                                                              <h2>
+                                                                                                                                                                        Veículos disponíveis
+                                                                                                                                                                                </h2>
+
+                                                                                                                                                                                        <input
+                                                                                                                                                                                                  id="searchInput"
+                                                                                                                                                                                                            type="search"
+                                                                                                                                                                                                                      placeholder="Buscar por marca ou modelo"
+                                                                                                                                                                                                                              >
+
+                                                                                                                                                                                                                                    </div>
+
+
+                                                                                                                                                                                                                                          <div id="carsGrid" class="cars-grid">
+
+                                                                                                                                                                                                                                                  <p class="loading">
+                                                                                                                                                                                                                                                            Carregando anúncios...
+                                                                                                                                                                                                                                                                    </p>
+
+                                                                                                                                                                                                                                                                          </div>
+
+                                                                                                                                                                                                                                                                              </section>
+
+                                                                                                                                                                                                                                                                                </main>
+
+
+                                                                                                                                                                                                                                                                                  <footer>
+                                                                                                                                                                                                                                                                                      © 2026 Moura Veículos. Todos os direitos reservados.
+                                                                                                                                                                                                                                                                                        </footer>
+
+
+                                                                                                                                                                                                                                                                                          <!-- Supabase -->
+
+                                                                                                                                                                                                                                                                                            <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+                                                                                                                                                                                                                                                                                              <!-- Configuração do Supabase -->
+
+                                                                                                                                                                                                                                                                                                <script src="config.js"></script>
+
+                                                                                                                                                                                                                                                                                                  <!-- Código do site -->
+
+                                                                                                                                                                                                                                                                                                    <script src="app.js"></script>
+
+                                                                                                                                                                                                                                                                                                    </body>
+
+                                                                                                                                                                                                                                                                                                    </html>
