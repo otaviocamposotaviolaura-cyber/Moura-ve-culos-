@@ -1,72 +1,100 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Painel | Moura Veículos</title>
+
+      <title>Moura Veículos</title>
+
         <link rel="stylesheet" href="styles.css">
         </head>
+
         <body>
+
           <header class="topbar">
-              <a class="brand" href="index.html">MOURA<span>.</span></a>
-                  <a class="admin-link" href="index.html">Ver site</a>
-                    </header>
-                    
-                      <main class="admin-container">
-                          <section id="loginSection" class="panel">
-                                <h1>Painel da equipe</h1>
-                                      <p>Entre com sua conta autorizada.</p>
-                                            <form id="loginForm">
-                                                    <label>E-mail<input id="email" type="email" required></label>
-                                                            <label>Senha<input id="password" type="password" required></label>
-                                                                    <button type="submit">Entrar</button>
-                                                                          </form>
-                                                                                <p id="loginMessage" class="message"></p>
-                                                                                    </section>
-                                                                                    
-                                                                                        <section id="dashboardSection" class="hidden">
-                                                                                              <div class="section-heading">
-                                                                                                      <h1>Gerenciar anúncios</h1>
-                                                                                                              <button> id="logoutButton" class="secondary">Sair</button>
-      </div>
 
-      <form id="carForm" class="panel">
-        <input id="carId" type="hidden">
-        <h2 id="formTitle">Novo veículo</h2>
-        <div class="form-grid">
-          <label>Marca<input id="brand" required></label>
-          <label>Modelo<input id="model" required></label>
-          <label>Ano<input id="year" type="number" required></label>
-          <label>Preço (R$)<input id="price" type="number" step="0.01" required></label>
-          <label>Quilometragem<input id="mileage" type="number"></label>
-          <label>Combustível<input id="fuel" placeholder="Flex, gasolina..."></label>
-          <label>Câmbio<input id="transmission" placeholder="Manual, automático..."></label>
-          <label>Status
-            <select id="status">
-              <option value="available">Disponível</option>
-              <option value="sold">Vendido</option>
-            </select>
-          </label>
-        </div>
-        <label>Descrição<textarea id="description" rows="5"></textarea></label>
-        <label>Fotos<input id="images" type="file" accept="image/*" multiple></label>
-        <div id="imagePreview" class="image-preview"></div>
-        <div class="form-actions">
-          <button type="submit">Salvar anúncio</button>
-          <button id="cancelEdit" type="button" class="secondary">Limpar</button>
-        </div>
-        <p id="formMessage" class="message"></p>
-      </form>
+              <a class="brand" href="index.html">
+                    MOURA<span>.</span>
+                        </a>
 
-      <section>
-        <h2>Anúncios cadastrados</h2>
-        <div id="adminCars" class="admin-list"></div>
-      </section>
-    </section>
-  </main>
+                            <a class="admin-link" href="admin.html">
+                                  Painel da equipe
+                                      </a>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="admin.js"></script>
-</body>
-</html>
+                                        </header>
+
+
+                                          <main>
+
+                                              <section class="hero">
+
+                                                    <div>
+
+                                                            <p class="eyebrow">
+                                                                      VEÍCULOS SELECIONADOS
+                                                                              </p>
+
+                                                                                      <h1>
+                                                                                                Encontre seu próximo carro.
+                                                                                                        </h1>
+
+                                                                                                                <p>
+                                                                                                                          Consulte os veículos disponíveis e fale diretamente pelo WhatsApp.
+                                                                                                                                  </p>
+
+                                                                                                                                        </div>
+
+                                                                                                                                            </section>
+
+
+                                                                                                                                                <section class="content">
+
+                                                                                                                                                      <div class="section-heading">
+
+                                                                                                                                                              <h2>
+                                                                                                                                                                        Veículos disponíveis
+                                                                                                                                                                                </h2>
+
+                                                                                                                                                                                        <input
+                                                                                                                                                                                                  id="searchInput"
+                                                                                                                                                                                                            type="search"
+                                                                                                                                                                                                                      placeholder="Buscar por marca ou modelo"
+                                                                                                                                                                                                                              >
+
+                                                                                                                                                                                                                                    </div>
+
+
+                                                                                                                                                                                                                                          <div id="carsGrid" class="cars-grid">
+
+                                                                                                                                                                                                                                                  <p class="loading">
+                                                                                                                                                                                                                                                            Carregando anúncios...
+                                                                                                                                                                                                                                                                    </p>
+
+                                                                                                                                                                                                                                                                          </div>
+
+                                                                                                                                                                                                                                                                              </section>
+
+                                                                                                                                                                                                                                                                                </main>
+
+
+                                                                                                                                                                                                                                                                                  <footer>
+                                                                                                                                                                                                                                                                                      © 2026 Moura Veículos. Todos os direitos reservados.
+                                                                                                                                                                                                                                                                                        </footer>
+
+
+                                                                                                                                                                                                                                                                                          <!-- Supabase -->
+
+                                                                                                                                                                                                                                                                                            <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+                                                                                                                                                                                                                                                                                              <!-- Configuração do Supabase -->
+
+                                                                                                                                                                                                                                                                                                <script src="config.js"></script>
+
+                                                                                                                                                                                                                                                                                                  <!-- Código do site -->
+
+                                                                                                                                                                                                                                                                                                    <script src="app.js"></script>
+
+                                                                                                                                                                                                                                                                                                    </body>
+
+                                                                                                                                                                                                                                                                                                    </html>
