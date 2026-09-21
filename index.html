@@ -2,12 +2,18 @@
 <html lang="pt-BR">
 
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Moura Veículos</title>
 
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="./styles.css">
+
 </head>
 
 <body>
@@ -23,6 +29,7 @@
     </a>
 
   </header>
+
 
   <main>
 
@@ -46,6 +53,7 @@
 
     </section>
 
+
     <section class="content">
 
       <div class="section-heading">
@@ -62,7 +70,11 @@
 
       </div>
 
-      <div id="carsGrid" class="cars-grid">
+
+      <div
+        id="carsGrid"
+        class="cars-grid"
+      >
 
         <p class="loading">
           Carregando anúncios...
@@ -74,19 +86,37 @@
 
   </main>
 
+
   <footer>
     © 2026 Moura Veículos. Todos os direitos reservados.
   </footer>
 
+
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Configuração do Supabase -->
-  <script src="./config.js"></script>
 
-  <!-- Código do site -->
+  <!-- Configuração direta -->
+  <script>
+
+    const SUPABASE_URL =
+      "https://tqwqqjaybdlbhfljdrui.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_3g6oKAR6vsNArrB2jn3TeQ_ai9r4FSk";
+
+
+    window.db =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+  </script>
+
+
   <script src="./app.js"></script>
 
 </body>
 
-</html>
+        </html>
