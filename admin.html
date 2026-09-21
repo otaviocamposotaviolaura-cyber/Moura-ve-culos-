@@ -10,94 +10,344 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>Teste de Login | Moura Veículos</title>
+  <title>Painel | Moura Veículos</title>
 
-  <style>
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      padding: 20px;
-    }
-
-    .box {
-      max-width: 500px;
-      margin: 40px auto;
-      background: #1c1c1c;
-      padding: 25px;
-      border-radius: 12px;
-    }
-
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px;
-      margin: 8px 0 15px;
-      border-radius: 6px;
-      border: none;
-    }
-
-    button {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-
-    #resultado {
-      margin-top: 20px;
-      padding: 15px;
-      background: #000;
-      border-radius: 8px;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-  </style>
+  <link rel="stylesheet" href="./styles.css">
 
 </head>
 
 <body>
 
-  <div class="box">
+  <header class="topbar">
 
-    <h1>Teste de Login</h1>
+    <a
+      class="brand"
+      href="./index.html"
+    >
+      MOURA<span>.</span>
+    </a>
 
-    <label>
-      E-mail
-    </label>
 
-    <input
-      id="email"
-      type="email"
-      placeholder="Digite o e-mail"
+    <a
+      class="admin-link"
+      href="./index.html"
+    >
+      Ver site
+    </a>
+
+  </header>
+
+
+  <main class="admin-container">
+
+
+    <!-- LOGIN -->
+
+    <section
+      id="loginSection"
+      class="panel"
     >
 
-    <label>
-      Senha
-    </label>
+      <h1>
+        Painel da equipe
+      </h1>
 
-    <input
-      id="password"
-      type="password"
-      placeholder="Digite a senha"
+      <p>
+        Entre com sua conta autorizada.
+      </p>
+
+
+      <form id="loginForm">
+
+        <label>
+
+          E-mail
+
+          <input
+            id="email"
+            type="email"
+            required
+          >
+
+        </label>
+
+
+        <label>
+
+          Senha
+
+          <input
+            id="password"
+            type="password"
+            required
+          >
+
+        </label>
+
+
+        <button type="submit">
+          Entrar
+        </button>
+
+      </form>
+
+
+      <p
+        id="loginMessage"
+        class="message"
+      ></p>
+
+    </section>
+
+
+
+    <!-- PAINEL -->
+
+    <section
+      id="dashboardSection"
+      class="hidden"
     >
 
-    <button id="loginButton">
-      Testar login
-    </button>
 
-    <div id="resultado">
-      Aguardando...
-    </div>
+      <div class="section-heading">
 
-  </div>
+        <h1>
+          Gerenciar anúncios
+        </h1>
 
+
+        <button
+          id="logoutButton"
+          class="secondary"
+        >
+          Sair
+        </button>
+
+      </div>
+
+
+
+      <!-- FORMULÁRIO -->
+
+      <form
+        id="carForm"
+        class="panel"
+      >
+
+        <input
+          id="carId"
+          type="hidden"
+        >
+
+
+        <h2 id="formTitle">
+          Novo veículo
+        </h2>
+
+
+        <div class="form-grid">
+
+
+          <label>
+
+            Marca
+
+            <input
+              id="brand"
+              required
+            >
+
+          </label>
+
+
+          <label>
+
+            Modelo
+
+            <input
+              id="model"
+              required
+            >
+
+          </label>
+
+
+          <label>
+
+            Ano
+
+            <input
+              id="year"
+              type="number"
+              required
+            >
+
+          </label>
+
+
+          <label>
+
+            Preço (R$)
+
+            <input
+              id="price"
+              type="number"
+              step="0.01"
+              required
+            >
+
+          </label>
+
+
+          <label>
+
+            Quilometragem
+
+            <input
+              id="mileage"
+              type="number"
+            >
+
+          </label>
+
+
+          <label>
+
+            Combustível
+
+            <input
+              id="fuel"
+              placeholder="Flex, gasolina..."
+            >
+
+          </label>
+
+
+          <label>
+
+            Câmbio
+
+            <input
+              id="transmission"
+              placeholder="Manual, automático..."
+            >
+
+          </label>
+
+
+          <label>
+
+            Status
+
+            <select id="status">
+
+              <option value="available">
+                Disponível
+              </option>
+
+              <option value="sold">
+                Vendido
+              </option>
+
+            </select>
+
+          </label>
+
+
+        </div>
+
+
+        <label>
+
+          Descrição
+
+          <textarea
+            id="description"
+            rows="5"
+          ></textarea>
+
+        </label>
+
+
+        <label>
+
+          Fotos
+
+          <input
+            id="images"
+            type="file"
+            accept="image/*"
+            multiple
+          >
+
+        </label>
+
+
+        <div
+          id="imagePreview"
+          class="image-preview"
+        ></div>
+
+
+        <div class="form-actions">
+
+
+          <button type="submit">
+            Salvar anúncio
+          </button>
+
+
+          <button
+            id="cancelEdit"
+            type="button"
+            class="secondary"
+          >
+            Limpar
+          </button>
+
+
+        </div>
+
+
+        <p
+          id="formMessage"
+          class="message"
+        ></p>
+
+
+      </form>
+
+
+
+      <!-- LISTA -->
+
+      <section>
+
+        <h2>
+          Anúncios cadastrados
+        </h2>
+
+
+        <div
+          id="adminCars"
+          class="admin-list"
+        ></div>
+
+      </section>
+
+
+    </section>
+
+
+  </main>
+
+
+  <!-- SUPABASE -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+
+  <!-- CONFIGURAÇÃO DIRETA -->
 
   <script>
 
@@ -108,145 +358,23 @@
       "sb_publishable_3g6oKAR6vsNArrB2jn3TeQ_ai9r4FSk";
 
 
-    const supabase =
+    window.db =
       window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_KEY
       );
 
 
-    const email =
-      document.getElementById("email");
-
-    const password =
-      document.getElementById("password");
-
-    const loginButton =
-      document.getElementById("loginButton");
-
-    const resultado =
-      document.getElementById("resultado");
-
-
-    loginButton.addEventListener(
-      "click",
-      async function () {
-
-        resultado.textContent =
-          "Entrando...";
-
-
-        const emailValue =
-          email.value.trim();
-
-        const passwordValue =
-          password.value;
-
-
-        if (!emailValue || !passwordValue) {
-
-          resultado.textContent =
-            "Preencha o e-mail e a senha.";
-
-          return;
-
-        }
-
-
-        try {
-
-          console.log(
-            "Iniciando login..."
-          );
-
-
-          const inicio =
-            Date.now();
-
-
-          const { data, error } =
-            await supabase.auth.signInWithPassword({
-
-              email: emailValue,
-
-              password: passwordValue
-
-            });
-
-
-          const tempo =
-            Date.now() - inicio;
-
-
-          console.log(
-            "Tempo:",
-            tempo,
-            "ms"
-          );
-
-          console.log(
-            "Data:",
-            data
-          );
-
-          console.log(
-            "Erro:",
-            error
-          );
-
-
-          if (error) {
-
-            resultado.textContent =
-              "ERRO NO LOGIN\n\n" +
-              error.message +
-              "\n\nCódigo: " +
-              (error.status || "não informado") +
-              "\n\nTempo: " +
-              tempo +
-              " ms";
-
-            return;
-
-          }
-
-
-          if (data.session) {
-
-            resultado.textContent =
-              "LOGIN FUNCIONOU!\n\n" +
-              "Usuário: " +
-              data.user.email +
-              "\n\n" +
-              "Sessão criada com sucesso.";
-
-          } else {
-
-            resultado.textContent =
-              "Login respondeu, mas não criou sessão.";
-
-          }
-
-
-        } catch (erro) {
-
-          console.error(
-            "Erro inesperado:",
-            erro
-          );
-
-
-          resultado.textContent =
-            "ERRO INESPERADO\n\n" +
-            erro.message;
-
-        }
-
-      }
+    console.log(
+      "Supabase inicializado:",
+      window.db
     );
 
   </script>
 
+
+  <script src="./admin.js"></script>
+
 </body>
 
-</html>
+              </html>
