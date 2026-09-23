@@ -1,148 +1,688 @@
 
-/* =================================
-   GALERIA DOS VEÍCULOS
-================================= */
+/* =========================================
+   CONFIGURAÇÕES GERAIS
+========================================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --green-dark: #173b20;
+  --green: #236b39;
+  --green-light: #a8d85b;
+  --green-hover: #1b542d;
+  --white: #ffffff;
+  --background: #f5f7f5;
+  --text: #253329;
+  --text-light: #68736b;
+  --border: #e0e6e1;
+  --shadow: 0 4px 18px rgba(23, 59, 32, 0.08);
+  --radius: 12px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--background);
+  color: var(--text);
+  line-height: 1.5;
+  min-width: 0;
+}
+
+img {
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================================
+   CABEÇALHO
+========================================= */
+
+header {
+  background: var(--green-dark);
+  color: var(--white);
+  padding: 18px 5%;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo,
+.logo a {
+  color: var(--white);
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+nav ul {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  list-style: none;
+}
+
+nav ul li a {
+  color: var(--white);
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+nav ul li a:hover {
+  color: var(--green-light);
+}
+
+/* =========================================
+   HERO
+========================================= */
+
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 360px;
+  padding: 65px 5%;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(23, 59, 32, 0.95),
+      rgba(23, 59, 32, 0.72),
+      rgba(23, 59, 32, 0.35)
+    ),
+    url("produtor.png") center / cover no-repeat;
+  color: var(--white);
+}
+
+.hero-content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  max-width: 700px;
+  margin-bottom: 18px;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  line-height: 1.15;
+}
+
+.hero p {
+  max-width: 600px;
+  margin-bottom: 25px;
+  font-size: 1.05rem;
+}
+
+/* =========================================
+   BOTÕES
+========================================= */
+
+.button,
+button {
+  display: inline-block;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  background: var(--green);
+  color: var(--white);
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.button:hover,
+button:hover {
+  background: var(--green-hover);
+  transform: translateY(-1px);
+}
+
+.button-secondary {
+  background: var(--green-light);
+  color: var(--green-dark);
+}
+
+.button-secondary:hover {
+  background: #94c34b;
+}
+
+/* =========================================
+   CONTAINERS E SEÇÕES
+========================================= */
+
+section {
+  width: 100%;
+}
+
+.container,
+.section-container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section {
+  padding: 55px 0;
+}
+
+.section-title {
+  margin-bottom: 25px;
+  color: var(--green-dark);
+  font-size: 1.8rem;
+}
+
+.section-subtitle {
+  margin-bottom: 30px;
+  color: var(--text-light);
+}
+
+/* =========================================
+   VEÍCULOS DISPONÍVEIS
+========================================= */
+
+#vehicles,
+#cars,
+#carsSection {
+  padding: 45px 5%;
+}
+
+.vehicles-header,
+.cars-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.vehicles-header h2,
+.cars-header h2 {
+  color: var(--green-dark);
+  font-size: 1.6rem;
+}
+
+#searchInput {
+  width: 280px;
+  max-width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  background: var(--white);
+  color: var(--text);
+}
+
+#searchInput:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(35, 107, 57, 0.12);
+}
+
+/* =========================================
+   GRID DOS ANÚNCIOS
+========================================= */
+
+#carsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 24px;
+  width: 100%;
+}
+
+/* =========================================
+   CARTÃO DO VEÍCULO
+========================================= */
+
+.car-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.car-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(23, 59, 32, 0.13);
+}
+
+/* =========================================
+   GALERIA DE FOTOS
+========================================= */
 
 .car-gallery {
   display: grid !important;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 5px;
   width: 100%;
   height: auto !important;
   max-height: none !important;
   overflow: hidden !important;
-  margin: 0 0 18px;
+  margin: 0;
   padding: 0;
-  background: #f1f3f5;
-  border-radius: 12px;
+  background: #edf0ed;
 }
 
-/* Imagens da galeria */
+/* Fotos dos veículos */
 
 .car-gallery .car-image {
   display: block !important;
   width: 100% !important;
-  height: 170px !important;
-  min-height: 170px !important;
-  max-height: 170px !important;
+  height: 145px !important;
+  min-width: 0;
+  min-height: 145px !important;
+  max-height: 145px !important;
   object-fit: cover !important;
   object-position: center;
   margin: 0 !important;
   padding: 0 !important;
   border: none;
   border-radius: 0;
-  background: #e9ecef;
+  background: #e9eeea;
 }
 
-/* Quando o anúncio possui apenas uma imagem */
+/* Quando existe apenas uma foto */
 
 .car-gallery .car-image:only-child {
   grid-column: 1 / -1;
-  height: 270px !important;
-  min-height: 270px !important;
-  max-height: 270px !important;
+  height: 250px !important;
+  min-height: 250px !important;
+  max-height: 250px !important;
   object-fit: contain !important;
-  background: #f1f3f5;
+  background: #f0f2f0;
 }
 
-/* Imagem que não carregou */
+/* Quando uma imagem falhar */
 
 .car-gallery .image-error {
   display: none !important;
 }
 
-/* Cartão do veículo */
-
-.car-card {
-  overflow: hidden;
-  border-radius: 12px;
-  background: #ffffff;
-}
-
-/* Informações do veículo */
+/* =========================================
+   INFORMAÇÕES DO VEÍCULO
+========================================= */
 
 .car-info {
-  padding: 16px;
+  padding: 17px;
 }
 
 .car-info h3 {
-  margin: 0 0 8px;
+  margin-bottom: 8px;
+  color: var(--green-dark);
   font-size: 1.15rem;
   font-weight: 700;
-  color: #173b20;
+  overflow-wrap: anywhere;
 }
 
 .car-meta {
   margin-bottom: 10px;
-  color: #6c757d;
-  font-size: 0.9rem;
+  color: var(--text-light);
+  font-size: 0.88rem;
+  line-height: 1.6;
 }
 
 .price {
   margin: 10px 0;
-  font-size: 1.25rem;
+  color: var(--green-dark);
+  font-size: 1.3rem;
   font-weight: 700;
-  color: #173b20;
 }
 
 .car-description {
-  margin: 10px 0;
-  line-height: 1.5;
-  color: #555555;
+  margin: 12px 0;
+  color: var(--text-light);
+  font-size: 0.93rem;
+  overflow-wrap: anywhere;
 }
-
-/* Botão do WhatsApp */
 
 .car-info .button {
-  display: inline-block;
+  display: block;
   width: 100%;
-  box-sizing: border-box;
-  text-align: center;
-  margin-top: 12px;
+  margin-top: 15px;
 }
 
-/* =================================
-   CELULAR
-================================= */
+/* =========================================
+   CARREGAMENTO E MENSAGENS
+========================================= */
 
-@media (max-width: 600px) {
-  .car-gallery {
+.loading {
+  grid-column: 1 / -1;
+  padding: 35px 15px;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.no-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  background: #e9eeea;
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* =========================================
+   FORMULÁRIOS
+========================================= */
+
+form {
+  width: 100%;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 17px;
+}
+
+.form-group label {
+  color: var(--green-dark);
+  font-weight: 700;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  outline: none;
+  background: var(--white);
+  color: var(--text);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(35, 107, 57, 0.12);
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+/* =========================================
+   ADMINISTRAÇÃO
+========================================= */
+
+.admin-container {
+  width: 90%;
+  max-width: 1100px;
+  margin: 35px auto;
+}
+
+.admin-container h1,
+.admin-container h2 {
+  margin-bottom: 22px;
+  color: var(--green-dark);
+}
+
+.admin-form {
+  padding: 25px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.admin-list {
+  display: grid;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.admin-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--white);
+}
+
+.admin-item img {
+  width: 100px;
+  height: 75px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.admin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-actions button {
+  padding: 9px 13px;
+  font-size: 0.85rem;
+}
+
+/* =========================================
+   PRÉ-VISUALIZAÇÃO DE IMAGENS
+========================================= */
+
+#imagePreview,
+.image-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
+}
+
+#imagePreview img,
+.image-preview img {
+  width: 100%;
+  height: 110px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+/* =========================================
+   RODAPÉ
+========================================= */
+
+footer {
+  margin-top: 45px;
+  padding: 28px 5%;
+  background: var(--green-dark);
+  color: var(--white);
+  text-align: center;
+}
+
+footer p {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+footer a {
+  color: var(--green-light);
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   RESPONSIVIDADE — TABLET
+========================================= */
+
+@media (max-width: 1000px) {
+  #carsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 5px;
-    border-radius: 10px;
+    gap: 18px;
   }
 
   .car-gallery .car-image {
-    height: 125px !important;
-    min-height: 125px !important;
-    max-height: 125px !important;
+    height: 145px !important;
+    min-height: 145px !important;
+    max-height: 145px !important;
+  }
+
+  .hero {
+    min-height: 330px;
+  }
+}
+
+/* =========================================
+   RESPONSIVIDADE — CELULAR
+========================================= */
+
+@media (max-width: 600px) {
+  header {
+    padding: 15px 4%;
+  }
+
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  nav ul {
+    flex-wrap: wrap;
+    gap: 12px 18px;
+  }
+
+  .hero {
+    min-height: 320px;
+    padding: 45px 6%;
+    background-position: center;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    font-size: 0.95rem;
+  }
+
+  #vehicles,
+  #cars,
+  #carsSection {
+    padding: 30px 4%;
+  }
+
+  .vehicles-header,
+  .cars-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  #searchInput {
+    width: 100%;
+  }
+
+  #carsGrid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .car-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .car-gallery .car-image {
+    height: 145px !important;
+    min-height: 145px !important;
+    max-height: 145px !important;
   }
 
   .car-gallery .car-image:only-child {
-    height: 220px !important;
-    min-height: 220px !important;
-    max-height: 220px !important;
+    height: 230px !important;
+    min-height: 230px !important;
+    max-height: 230px !important;
   }
 
   .car-info {
-    padding: 14px;
+    padding: 15px;
+  }
+
+  .admin-container {
+    width: 92%;
+    margin: 25px auto;
+  }
+
+  .admin-form {
+    padding: 17px;
+  }
+
+  .admin-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-item img {
+    width: 100%;
+    height: 160px;
+  }
+
+  .admin-actions {
+    width: 100%;
+  }
+
+  .admin-actions button {
+    flex: 1;
+  }
+
+  .section {
+    padding: 35px 0;
   }
 }
 
-/* =================================
-   TELAS MAIORES
-================================= */
+/* =========================================
+   ACESSIBILIDADE
+========================================= */
 
-@media (min-width: 1000px) {
-  .car-gallery .car-image {
-    height: 190px !important;
-    min-height: 190px !important;
-    max-height: 190px !important;
-  }
+:focus-visible {
+  outline: 3px solid var(--green-light);
+  outline-offset: 3px;
+}
 
-  .car-gallery .car-image:only-child {
-    height: 300px !important;
-    min-height: 300px !important;
-    max-height: 300px !important;
-  }
+::selection {
+  background: var(--green-light);
+  color: var(--green-dark);
 }
