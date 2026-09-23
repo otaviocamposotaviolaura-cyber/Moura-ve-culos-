@@ -1,3 +1,4 @@
+
 const loginSection =
   document.getElementById("loginSection");
 
@@ -40,12 +41,89 @@ const formTitle =
 
 let currentImages = [];
 
+let isLoggingOut = false;
 
 
-/* =========================
-   LOGIN / SESSÃO
-========================= */
+/* =========================================
+   NORMALIZAR IMAGENS
+========================================= */
 
+function normalizeImages(value) {
+
+  if (Array.isArray(value)) {
+
+    return value.filter(
+      image =>
+        typeof image === "string" &&
+        image.trim() !== ""
+    );
+
+  }
+
+
+  if (typeof value === "string") {
+
+    try {
+
+      const parsed =
+        JSON.parse(value);
+
+
+      if (Array.isArray(parsed)) {
+
+        return parsed.filter(
+          image =>
+            typeof image === "string" &&
+            image.trim() !== ""
+        );
+
+      }
+
+    } catch (error) {
+
+      if (value.trim() !== "") {
+
+        return [value.trim()];
+
+      }
+
+    }
+
+  }
+
+
+  return [];
+
+}
+
+
+
+/* =========================================
+   EXIBIR LOGIN E PAINEL
+========================================= */
+
+function showLogin() {
+
+  loginSection.classList.remove("hidden");
+
+  dashboardSection.classList.add("hidden");
+
+}
+
+
+function showDashboard() {
+
+  loginSection.classList.add("hidden");
+
+  dashboardSection.classList.remove("hidden");
+
+}
+
+
+
+/* =========================================
+   VERIFICAR SESSÃO
+========================================= */
 
 async function checkSession() {
 
@@ -68,13 +146,11 @@ async function checkSession() {
       showLogin();
 
       return;
+
     }
 
 
-    if (
-      data &&
-      data.session
-    ) {
+    if (data && data.session) {
 
       showDashboard();
 
@@ -85,7 +161,6 @@ async function checkSession() {
       showLogin();
 
     }
-
 
   } catch (error) {
 
@@ -102,38 +177,46 @@ async function checkSession() {
 
 
 
-function showLogin() {
+/* =========================================
+   VERIFICAR USUÁRIO AUTENTICADO
+========================================= */
 
-  loginSection.classList.remove(
-    "hidden"
-  );
+async function getCurrentSession() {
 
-  dashboardSection.classList.add(
-    "hidden"
-  );
+  const {
+    data,
+    error
+  } =
+    await window.db.auth.getSession();
+
+
+  if (error) {
+
+    throw error;
+
+  }
+
+
+  if (!data || !data.session) {
+
+    showLogin();
+
+    throw new Error(
+      "Sua sessão terminou. Faça login novamente."
+    );
+
+  }
+
+
+  return data.session;
 
 }
 
 
 
-function showDashboard() {
-
-  loginSection.classList.add(
-    "hidden"
-  );
-
-  dashboardSection.classList.remove(
-    "hidden"
-  );
-
-}
-
-
-
-/* =========================
+/* =========================================
    LOGIN
-========================= */
-
+========================================= */
 
 loginForm.addEventListener(
   "submit",
@@ -159,10 +242,7 @@ loginForm.addEventListener(
         .value;
 
 
-    if (
-      !email ||
-      !password
-    ) {
+    if (!email || !password) {
 
       loginMessage.textContent =
         "Digite o e-mail e a senha.";
@@ -174,97 +254,38 @@ loginForm.addEventListener(
 
     try {
 
-      console.log(
-        "Tentando entrar..."
-      );
-
-
-      const loginPromise =
-        window.db.auth.signInWithPassword({
-
-          email: email,
-
-          password: password
-
-        });
-
-
-      const timeoutPromise =
-        new Promise(
-          (_, reject) => {
-
-            setTimeout(
-              () => {
-
-                reject(
-                  new Error(
-                    "Tempo limite ao conectar ao Supabase."
-                  )
-                );
-
-              },
-              15000
-            );
-
-          }
-        );
-
-
       const {
         data,
         error
       } =
-        await Promise.race([
+        await window.db.auth.signInWithPassword({
 
-          loginPromise,
+          email,
 
-          timeoutPromise
+          password
 
-        ]);
-
-
-      console.log(
-        "Resposta do login:",
-        data
-      );
-
-
-      console.log(
-        "Erro:",
-        error
-      );
+        });
 
 
       if (error) {
 
-        loginMessage.textContent =
-          "Erro: " +
-          error.message;
-
-        return;
+        throw error;
 
       }
 
 
-      if (
-        !data ||
-        !data.session
-      ) {
+      if (!data || !data.session) {
 
-        loginMessage.textContent =
-          "Login não concluído.";
-
-        return;
+        throw new Error(
+          "Login não concluído."
+        );
 
       }
 
 
-      loginMessage.textContent =
-        "";
-
+      loginMessage.textContent = "";
 
       showDashboard();
-
 
       await loadAdminCars();
 
@@ -278,6 +299,7 @@ loginForm.addEventListener(
 
 
       loginMessage.textContent =
+        "Erro ao entrar: " +
         error.message;
 
     }
@@ -287,28 +309,94 @@ loginForm.addEventListener(
 
 
 
-/* =========================
+/* =========================================
    LOGOUT
-========================= */
-
+========================================= */
 
 logoutButton.addEventListener(
   "click",
   async () => {
 
-    await window.db.auth.signOut();
+    if (isLoggingOut) {
 
-    showLogin();
+      return;
+
+    }
+
+
+    isLoggingOut = true;
+
+    logoutButton.disabled = true;
+
+    logoutButton.textContent =
+      "Saindo...";
+
+
+    try {
+
+      const {
+        error
+      } =
+        await window.db.auth.signOut();
+
+
+      if (error) {
+
+        throw error;
+
+      }
+
+
+      currentImages = [];
+
+      carForm.reset();
+
+      imagePreview.innerHTML = "";
+
+      carId.value = "";
+
+      formTitle.textContent =
+        "Novo veículo";
+
+      formMessage.textContent = "";
+
+      loginMessage.textContent = "";
+
+      showLogin();
+
+
+    } catch (error) {
+
+      console.error(
+        "Erro ao sair:",
+        error
+      );
+
+
+      loginMessage.textContent =
+        "Erro ao sair: " +
+        error.message;
+
+
+    } finally {
+
+      isLoggingOut = false;
+
+      logoutButton.disabled = false;
+
+      logoutButton.textContent =
+        "Sair";
+
+    }
 
   }
 );
 
 
 
-/* =========================
+/* =========================================
    CARREGAR ANÚNCIOS
-========================= */
-
+========================================= */
 
 async function loadAdminCars() {
 
@@ -317,6 +405,9 @@ async function loadAdminCars() {
 
 
   try {
+
+    await getCurrentSession();
+
 
     const {
       data,
@@ -335,23 +426,12 @@ async function loadAdminCars() {
 
     if (error) {
 
-      console.error(
-        "Erro:",
-        error
-      );
-
-      adminCars.innerHTML =
-        "<p>Erro ao carregar anúncios.</p>";
-
-      return;
+      throw error;
 
     }
 
 
-    if (
-      !data ||
-      !data.length
-    ) {
+    if (!data || !data.length) {
 
       adminCars.innerHTML =
         "<p>Nenhum anúncio cadastrado.</p>";
@@ -365,7 +445,7 @@ async function loadAdminCars() {
       data.map(car => {
 
         const price =
-          Number(car.price)
+          Number(car.price || 0)
             .toLocaleString(
               "pt-BR",
               {
@@ -375,10 +455,13 @@ async function loadAdminCars() {
             );
 
 
+        const images =
+          normalizeImages(car.images);
+
+
         const image =
-          car.images &&
-          car.images.length
-            ? car.images[0]
+          images.length
+            ? images[0]
             : "";
 
 
@@ -391,48 +474,59 @@ async function loadAdminCars() {
                 ? `
                   <img
                     src="${escapeHtml(image)}"
-                    alt="${escapeHtml(car.brand)} ${escapeHtml(car.model)}"
+                    alt="${escapeHtml(
+                      `${car.brand || ""} ${car.model || ""}`
+                    )}"
+                    loading="lazy"
                   >
                 `
-                : ""
+                : `
+                  <div class="no-image">
+                    Sem imagem
+                  </div>
+                `
             }
-
 
             <div>
 
               <h3>
-                ${escapeHtml(car.brand)}
-                ${escapeHtml(car.model)}
+                ${escapeHtml(car.brand || "")}
+                ${escapeHtml(car.model || "")}
               </h3>
 
-
               <p>
-                ${escapeHtml(String(car.year))}
+                ${escapeHtml(String(car.year || ""))}
                 •
                 ${price}
               </p>
 
-
               <p>
                 Status:
-                ${car.status === "available"
-                  ? "Disponível"
-                  : "Vendido"}
+                ${
+                  car.status === "available"
+                    ? "Disponível"
+                    : "Vendido"
+                }
               </p>
 
+              <p>
+                Fotos cadastradas:
+                ${images.length}
+              </p>
 
               <div class="form-actions">
 
                 <button
-                  onclick="editCar('${car.id}')"
+                  type="button"
+                  onclick="editCar('${escapeHtml(car.id)}')"
                 >
                   Editar
                 </button>
 
-
                 <button
+                  type="button"
                   class="secondary"
-                  onclick="deleteCar('${car.id}')"
+                  onclick="deleteCar('${escapeHtml(car.id)}')"
                 >
                   Excluir
                 </button>
@@ -451,12 +545,13 @@ async function loadAdminCars() {
   } catch (error) {
 
     console.error(
-      "Erro inesperado:",
+      "Erro ao carregar anúncios:",
       error
     );
 
+
     adminCars.innerHTML =
-      "<p>Erro inesperado ao carregar anúncios.</p>";
+      "<p>Erro ao carregar anúncios.</p>";
 
   }
 
@@ -464,10 +559,9 @@ async function loadAdminCars() {
 
 
 
-/* =========================
-   SALVAR
-========================= */
-
+/* =========================================
+   SALVAR ANÚNCIO
+========================================= */
 
 carForm.addEventListener(
   "submit",
@@ -481,6 +575,9 @@ carForm.addEventListener(
 
 
     try {
+
+      await getCurrentSession();
+
 
       const id =
         carId.value.trim();
@@ -556,12 +653,14 @@ carForm.addEventListener(
 
 
       const files =
-        Array.from(
-          imageInput.files
-        );
+        Array.from(imageInput.files || []);
 
 
       if (files.length) {
+
+        formMessage.textContent =
+          "Enviando fotos...";
+
 
         const uploaded =
           await uploadImages(files);
@@ -599,6 +698,10 @@ carForm.addEventListener(
         images: currentImages
 
       };
+
+
+      formMessage.textContent =
+        "Salvando anúncio...";
 
 
       let result;
@@ -642,7 +745,7 @@ carForm.addEventListener(
     } catch (error) {
 
       console.error(
-        "Erro ao salvar:",
+        "Erro ao salvar anúncio:",
         error
       );
 
@@ -658,19 +761,25 @@ carForm.addEventListener(
 
 
 
-/* =========================
+/* =========================================
    UPLOAD DE IMAGENS
-========================= */
-
+========================================= */
 
 async function uploadImages(files) {
 
   const urls = [];
 
 
-  for (
-    const file of files
-  ) {
+  for (const file of files) {
+
+    if (!file.type.startsWith("image/")) {
+
+      throw new Error(
+        "Selecione somente arquivos de imagem."
+      );
+
+    }
+
 
     const extension =
       file.name
@@ -716,14 +825,19 @@ async function uploadImages(files) {
     } =
       window.db.storage
         .from("vehicle-images")
-        .getPublicUrl(
-          filePath
-        );
+        .getPublicUrl(filePath);
 
 
-    urls.push(
-      data.publicUrl
-    );
+    if (!data || !data.publicUrl) {
+
+      throw new Error(
+        "Não foi possível obter o endereço da imagem."
+      );
+
+    }
+
+
+    urls.push(data.publicUrl);
 
   }
 
@@ -734,14 +848,367 @@ async function uploadImages(files) {
 
 
 
-/* =========================
-   EDITAR
-========================= */
-
+/* =========================================
+   EDITAR ANÚNCIO
+========================================= */
 
 async function editCar(id) {
 
   try {
+
+    await getCurrentSession();
+
+
+    const {
+      data,
+      error
+    } =
+      await window.db
+        .from("cars")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+
+    if (error) {
+
+      throw error;
+
+    }
+
+
+    carId.value =
+      data.id;
+
+
+    document
+      .getElementById("brand")
+      .value =
+      data.brand || "";
+
+
+    document
+      .getElementById("model")
+      .value =
+      data.model || "";
+
+
+    document
+      .getElementById("year")
+      .value =
+      data.year || "";
+
+
+    document
+      .getElementById("price")
+      .value =
+      data.price || "";
+
+
+    document
+      .getElementById("mileage")
+      .value =
+      data.mileage || "";
+
+
+    document
+      .getElementById("fuel")
+      .value =
+      data.fuel || "";
+
+
+    document
+      .getElementById("transmission")
+      .value =
+      data.transmission || "";
+
+
+    document
+      .getElementById("status")
+      .value =
+      data.status || "available";
+
+
+    document
+      .getElementById("description")
+      .value =
+      data.description || "";
+
+
+    currentImages =
+      normalizeImages(data.images);
+
+
+    formTitle.textContent =
+      "Editar veículo";
+
+
+    renderCurrentImages();
+
+
+    window.scrollTo({
+
+      top: 0,
+
+      behavior: "smooth"
+
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao editar:",
+      error
+    );
+
+
+    alert(
+      "Erro ao carregar veículo: " +
+      error.message
+    );
+
+  }
+
+}
+
+
+
+/* =========================================
+   EXCLUIR ANÚNCIO
+========================================= */
+
+async function deleteCar(id) {
+
+  const confirmed =
+    confirm(
+      "Tem certeza de que deseja excluir este anúncio?"
+    );
+
+
+  if (!confirmed) {
+
+    return;
+
+  }
+
+
+  try {
+
+    await getCurrentSession();
+
+
+    const {
+      error
+    } =
+      await window.db
+        .from("cars")
+        .delete()
+        .eq("id", id);
+
+
+    if (error) {
+
+      throw error;
+
+    }
+
+
+    await loadAdminCars();
+
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao excluir:",
+      error
+    );
+
+
+    alert(
+      "Erro ao excluir: " +
+      error.message
+    );
+
+  }
+
+}
+
+
+
+/* =========================================
+   PRÉ-VISUALIZAÇÃO DAS IMAGENS
+========================================= */
+
+imageInput.addEventListener(
+  "change",
+  () => {
+
+    renderCurrentImages();
+
+
+    const files =
+      Array.from(imageInput.files || []);
+
+
+    files.forEach(file => {
+
+      const reader =
+        new FileReader();
+
+
+      reader.onload =
+        event => {
+
+          const img =
+            document.createElement("img");
+
+
+          img.src =
+            event.target.result;
+
+
+          img.alt =
+            file.name;
+
+
+          imagePreview.appendChild(img);
+
+        };
+
+
+      reader.readAsDataURL(file);
+
+    });
+
+  }
+);
+
+
+
+function renderCurrentImages() {
+
+  imagePreview.innerHTML = "";
+
+
+  currentImages.forEach(url => {
+
+    const img =
+      document.createElement("img");
+
+
+    img.src =
+      url;
+
+
+    img.alt =
+      "Imagem do veículo";
+
+
+    img.loading =
+      "lazy";
+
+
+    imagePreview.appendChild(img);
+
+  });
+
+}
+
+
+
+/* =========================================
+   LIMPAR FORMULÁRIO
+========================================= */
+
+cancelEdit.addEventListener(
+  "click",
+  resetForm
+);
+
+
+
+function resetForm() {
+
+  carForm.reset();
+
+
+  carId.value = "";
+
+
+  currentImages = [];
+
+
+  imagePreview.innerHTML = "";
+
+
+  formTitle.textContent =
+    "Novo veículo";
+
+
+  formMessage.textContent =
+    "";
+
+}
+
+
+
+/* =========================================
+   SEGURANÇA HTML
+========================================= */
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+
+    .replace(/&/g, "&amp;")
+
+    .replace(/</g, "&lt;")
+
+    .replace(/>/g, "&gt;")
+
+    .replace(/"/g, "&quot;")
+
+    .replace(/'/g, "&#039;");
+
+}
+
+
+
+/* =========================================
+   OBSERVAR AUTENTICAÇÃO
+========================================= */
+
+window.db.auth.onAuthStateChange(
+  (event, session) => {
+
+    console.log(
+      "Autenticação:",
+      event
+    );
+
+
+    if (session) {
+
+      showDashboard();
+
+    } else {
+
+      showLogin();
+
+    }
+
+  }
+);
+
+
+
+/* =========================================
+   INICIAR
+========================================= */
+
+checkSession();
+ try {
 
     const {
       data,
