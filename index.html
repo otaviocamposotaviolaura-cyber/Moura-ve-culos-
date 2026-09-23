@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -20,11 +21,17 @@
 
   <header class="topbar">
 
-    <a class="brand" href="./index.html">
+    <a
+      class="brand"
+      href="./index.html"
+    >
       MOURA<span>.</span>
     </a>
 
-    <a class="admin-link" href="./admin.html">
+    <a
+      class="admin-link"
+      href="./admin.html"
+    >
       Painel da equipe
     </a>
 
@@ -46,7 +53,8 @@
         </h1>
 
         <p>
-          Consulte os veículos disponíveis e fale diretamente pelo WhatsApp.
+          Consulte os veículos disponíveis
+          e fale diretamente pelo WhatsApp.
         </p>
 
       </div>
@@ -88,15 +96,18 @@
 
 
   <footer>
-    © 2026 Moura Veículos. Todos os direitos reservados.
+    © 2026 Moura Veículos.
+    Todos os direitos reservados.
   </footer>
 
 
-  <!-- Supabase -->
+  <!-- SUPABASE -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
-  <!-- Configuração direta -->
+  <!-- CONFIGURAÇÃO DO SUPABASE -->
+
   <script>
 
     const SUPABASE_URL =
@@ -112,11 +123,19 @@
         SUPABASE_KEY
       );
 
+
+    console.log(
+      "Supabase inicializado:",
+      window.db
+    );
+
   </script>
 
+
+  <!-- CÓDIGO PRINCIPAL -->
 
   <script src="./app.js"></script>
 
 </body>
 
-        </html>
+</html>
